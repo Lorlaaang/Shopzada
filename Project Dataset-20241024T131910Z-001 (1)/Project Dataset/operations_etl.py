@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import sqlite3
 import logging
+import re
 
 # Configure logging
 logging.basicConfig(
@@ -17,6 +18,7 @@ DB_FILE = "shopzada.db"
 conn = sqlite3.connect(DB_FILE)
 
 # Define the Operations Department directory
+# Panote ang project directory dito naka (1)
 input_folder = os.path.join(
     os.getcwd(),
     "Project Dataset-20241024T131910Z-001 (1)",
@@ -24,8 +26,7 @@ input_folder = os.path.join(
     "Operations Department",
 )
 
-# Helper function to clean and standardize data
-# Helper function to clean and standardize data
+# Transform data function
 def transform_data(df, table_name):
     try:
         logging.info(f"Transforming data for table: {table_name}")
@@ -33,44 +34,61 @@ def transform_data(df, table_name):
         if table_name == "orders":
             # Standardize 'User ID'
             if "user_id" in df.columns:
+                logging.info(f"Before cleaning user_id: {df['user_id'].head()}")
                 df["user_id"] = df["user_id"].str.strip().str.upper().str.replace("USER", "U")
                 df = df[df["user_id"].str.match(r"^U\d{5}$", na=False)]
+                logging.info(f"After cleaning user_id: {df['user_id'].head()}")
+
+            # Handle variations in column names for 'estimated_arrival_in_days'
+            if "estimated arrival" in df.columns:
+                df.rename(columns={"estimated arrival": "estimated_arrival_in_days"}, inplace=True)
 
             # Clean 'estimated_arrival_in_days' to be numeric
             if "estimated_arrival_in_days" in df.columns:
-                import re  # Ensure 're' module is available
+                logging.info(f"Before cleaning estimated_arrival_in_days: {df['estimated_arrival_in_days'].head()}")
                 df["estimated_arrival_in_days"] = df["estimated_arrival_in_days"].apply(
-                    lambda x: re.sub(r"\D", "", str(x))
+                    lambda x: re.sub(r"\D", "", str(x)) if pd.notnull(x) else x
                 )
                 df["estimated_arrival_in_days"] = pd.to_numeric(
                     df["estimated_arrival_in_days"], errors="coerce"
                 )
+                logging.info(f"After cleaning estimated_arrival_in_days: {df['estimated_arrival_in_days'].head()}")
 
-            # Standardize 'Transaction Date'
+            # Standardize 'Transaction Date' to YYYY-MM-DD
             if "transaction_date" in df.columns:
+                logging.info(f"Before cleaning transaction_date: {df['transaction_date'].head()}")
                 df["transaction_date"] = pd.to_datetime(
                     df["transaction_date"], errors="coerce"
-                ).dt.strftime("%Y/%m/%d")
+                ).dt.strftime("%Y-%m-%d")  # Changed to YYYY-MM-DD format
+                logging.info(f"After cleaning transaction_date: {df['transaction_date'].head()}")
 
         elif table_name == "line_items":
             # Standardize 'Quantity'
             if "quantity" in df.columns:
+                logging.info(f"Before cleaning quantity: {df['quantity'].head()}")
                 df["quantity"] = df["quantity"].str.replace(r"[^\d]", "", regex=True) + " PCs"
+                logging.info(f"After cleaning quantity: {df['quantity'].head()}")
 
             # Ensure 'Price' has two decimal places
             if "price" in df.columns:
+                logging.info(f"Before cleaning price: {df['price'].head()}")
                 df["price"] = pd.to_numeric(df["price"], errors="coerce").map("{:.2f}".format)
+                logging.info(f"After cleaning price: {df['price'].head()}")
 
         elif table_name == "products":
             # Capitalize each word in 'Product Name'
             if "product_name" in df.columns:
+                logging.info(f"Before cleaning product_name: {df['product_name'].head()}")
                 df["product_name"] = df["product_name"].str.title()
+                logging.info(f"After cleaning product_name: {df['product_name'].head()}")
 
             # Clean 'Product ID'
             if "product_id" in df.columns:
+                logging.info(f"Before cleaning product_id: {df['product_id'].head()}")
                 df["product_id"] = df["product_id"].str.strip().str.upper()
                 df["product_id"] = df["product_id"].str.replace("PRODUCT", "P", regex=False)
                 df = df[df["product_id"].str.match(r"^P\d{5}$", na=False)]
+                logging.info(f"After cleaning product_id: {df['product_id'].head()}")
 
         logging.info(f"Preview of transformed data:\n{df.head().to_string()}")
         return df
