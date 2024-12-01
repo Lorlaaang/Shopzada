@@ -9,13 +9,13 @@ logging.basicConfig(filename=log_path, level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # File paths
-user_credit_card_path = r'Customer Management Department\Raw Data\user_credit_card.pickle'
-user_data_path = r'Customer Management Department\Raw Data\user_data.json'
-user_job_path = r'Customer Management Department\Raw Data\user_job.csv'
+user_credit_card_path = r'Shopzada\Customer Management Department\Raw Data\user_credit_card.pickle'
+user_data_path = r'Shopzada\Customer Management Department\Raw Data\user_data.json'
+user_job_path = r'Shopzada\Customer Management Department\Raw Data\user_job.csv'
 
-cleaned_user_credit_card_path = r'Customer Management Department\Cleaned Data\cleaned_user_credit_card.csv'
-cleaned_user_data_path = r'Customer Management Department\Cleaned Data\cleaned_user_data.csv'
-cleaned_user_job_path = r'Customer Management Department\Cleaned Data\cleaned_user_job.csv'
+cleaned_user_credit_card_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_credit_card.csv'
+cleaned_user_data_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_data.csv'
+cleaned_user_job_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_job.csv'
 
 # Load the datasets
 try:
