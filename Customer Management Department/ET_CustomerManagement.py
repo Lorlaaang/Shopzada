@@ -65,6 +65,14 @@ def clean_user_credit_card(df):
 
     df['credit_card_number'] = df['credit_card_number'].apply(hash_credit_card_number)
 
+    # Capitalize bank names
+    def clean_bank_name(bank_name):
+        if isinstance(bank_name, str):
+            return bank_name.upper()
+        return bank_name
+
+    df['issuing_bank'] = df['issuing_bank'].apply(clean_bank_name)
+    
     return df
 
 def clean_user_data(df):
