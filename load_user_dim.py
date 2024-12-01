@@ -22,13 +22,7 @@ user_credit_df = pd.read_csv(clean_user_credit_path)
 user_job_df = pd.read_csv(clean_user_job)
 
 # merge files for loading
-user_data_with_credit_df = pd.merge(user_data_df, user_credit_df, on=merge_key, how='outer', indicator=True)
-
-unmatched_rows = user_data_with_credit_df[user_data_with_credit_df['_merge'].isin(['left_only', 'right_only'])]
-
-# View the rows that don't have matches
-print(unmatched_rows)
-
+user_data_with_credit_df = pd.merge(user_data_df, user_credit_df, on=merge_key, how='outer')
 user_data_with_credit_with_job_df = pd.merge(user_data_with_credit_df, user_job_df, on=merge_key, how='outer')
 
 # log here combined all
@@ -37,8 +31,8 @@ user_data_with_credit_with_job_df = pd.merge(user_data_with_credit_df, user_job_
 user_data_with_credit_with_job_df.columns = ['user_' + col if (col != 'user_id' and col != 'user_type')  else col for col in user_data_with_credit_with_job_df.columns]
 
 # load data into database
-# engine = create_engine(db_url)
-# user_data_with_credit_with_job_df.to_sql(table_name, engine, if_exists='append', index=False)
+engine = create_engine(db_url)
+user_data_with_credit_with_job_df.to_sql(table_name, engine, if_exists='append', index=False)
 
 
 
