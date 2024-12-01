@@ -42,7 +42,10 @@ def clean_user_credit_card(df):
     def clean_user_id(user_id):
         if isinstance(user_id, str):
             user_id = user_id.replace(" ", "").replace("-", "").upper()
-            user_id = 'U' + user_id[1:]
+            if user_id.startswith('USER'):
+                user_id = 'U' + user_id[4:]
+            elif not user_id.startswith('U'):
+                user_id = 'U' + user_id
         return user_id
 
     df['user_id'] = df['user_id'].apply(clean_user_id)
@@ -69,7 +72,10 @@ def clean_user_data(df):
     def clean_user_id(user_id):
         if isinstance(user_id, str):
             user_id = user_id.replace(" ", "").replace("-", "").upper()
-            user_id = 'U' + user_id[1:]
+            if user_id.startswith('USER'):
+                user_id = 'U' + user_id[4:]
+            elif not user_id.startswith('U'):
+                user_id = 'U' + user_id
         return user_id
 
     df['user_id'] = df['user_id'].apply(clean_user_id)
@@ -95,6 +101,14 @@ def clean_user_data(df):
 
     # Capitalize country names
     df['country'] = df['country'].apply(lambda x: x.upper() if isinstance(x, str) else x)
+
+    # Capitalize the first letter of all words in the street column
+    def capitalize_street(street):
+        if isinstance(street, str):
+            return street.title()
+        return street
+
+    df['street'] = df['street'].apply(capitalize_street)
     
     return df
 
@@ -106,7 +120,10 @@ def clean_user_job(df):
     def clean_user_id(user_id):
         if isinstance(user_id, str):
             user_id = user_id.replace(" ", "").replace("-", "").upper()
-            user_id = 'U' + user_id[1:]
+            if user_id.startswith('USER'):
+                user_id = 'U' + user_id[4:]
+            elif not user_id.startswith('U'):
+                user_id = 'U' + user_id
         return user_id
 
     df['user_id'] = df['user_id'].apply(clean_user_id)
@@ -119,6 +136,9 @@ def clean_user_job(df):
         return name
 
     df['name'] = df['name'].apply(clean_name)
+
+      # Fill null values in job_level with 'N/A'
+    df['job_level'] = df['job_level'].fillna('N/A')
     
     return df
 
