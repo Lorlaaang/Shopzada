@@ -1,41 +1,19 @@
-2024-12-01 20:27:33,098:INFO:Loaded user_credit_card.pickle successfully.
-2024-12-01 20:27:33,121:INFO:Loaded user_data.json successfully.
-2024-12-01 20:27:33,128:INFO:Loaded user_job.csv successfully.
-2024-12-01 20:27:33,132:INFO:Cleaned user_credit_card successfully.
-2024-12-01 20:27:35,870:INFO:Cleaned user_data successfully.
-2024-12-01 20:27:35,874:INFO:Cleaned user_job successfully.
-2024-12-01 20:27:35,880:INFO:Duplicates: Empty DataFrame
+2024-12-01 20:33:50,515:INFO:Loaded user_credit_card.pickle successfully.
+2024-12-01 20:33:50,538:INFO:Loaded user_data.json successfully.
+2024-12-01 20:33:50,545:INFO:Loaded user_job.csv successfully.
+2024-12-01 20:33:50,554:INFO:Cleaned user_credit_card successfully.
+2024-12-01 20:33:53,221:INFO:Cleaned user_data successfully.
+2024-12-01 20:33:53,225:INFO:Cleaned user_job successfully.
+2024-12-01 20:33:53,229:INFO:Duplicates: Empty DataFrame
 Columns: [user_id, name, credit_card_number, issuing_bank]
 Index: []
-2024-12-01 17:28:43,234:INFO:Duplicates in ['user_id']:         user_id        creation_date                name  ...  gender     device_address user_type
-15    USER29028  2020-03-23T17:17:08         Cali Walker  ...  female  18:f8:76:e3:6b:0c     basic
-38    USER24767  2021-07-31T19:59:33        Pink Schmitt  ...    male  70:a5:df:9c:de:a6     basic
-58    USER48388  2022-04-25T08:33:03    Raina Mclaughlin  ...    male  25:8e:bc:a4:41:a0   premium
-65    USER34332  2023-08-21T15:43:42       Keagan Feeney  ...  female  eb:5c:c4:4d:b6:4a     basic
-77    USER10122  2021-01-21T11:49:57         Dasia Swift  ...    male  41:9f:ed:9d:bf:e6  verified
-...         ...                  ...                 ...  ...     ...                ...       ...
-4950  USER23705  2022-01-29T17:13:38  Alexandria Hilpert  ...  female  6f:6f:ef:6b:1a:5a   premium
-4976  USER04133  2021-07-23T20:19:54         Kenyon King  ...  female  3e:72:e1:c8:9c:1a     basic
-4983  USER30174  2021-06-22T11:12:50      Kelton Ullrich  ...    male  55:b1:76:ae:7f:dd     basic
-4997  USER36424  2022-10-05T21:36:56      Cordie Jenkins  ...    male  0b:0d:57:d6:c1:ab     basic
-4998  USER45166  2020-07-20T03:51:41          Tyrel Feil  ...    male  83:c9:1e:4e:52:f4   premium
-
-[412 rows x 11 columns]
-2024-12-01 17:28:43,240:INFO:Duplicates in ['user_id']:         user_id                name       job_title   job_level
-15    USER29028         Cali Walker      Strategist    Paradigm
-38    USER24767        Pink Schmitt       Developer     Factors
-58    USER48388    Raina Mclaughlin         Student         NaN
-65    USER34332       Keagan Feeney         Student         NaN
-77    USER10122         Dasia Swift      Specialist    Paradigm
-...         ...                 ...             ...         ...
-4950  USER23705  Alexandria Hilpert         Student         NaN
-4976  USER04133         Kenyon King         Student         NaN
-4983  USER30174      Kelton Ullrich       Assistant  Operations
-4997  USER36424      Cordie Jenkins  Representative  Directives
-4998  USER45166          Tyrel Feil      Supervisor     Metrics
-
-[412 rows x 4 columns]
-2024-12-01 17:28:43,242:INFO:Checked and resolved duplicates successfully.
-2024-12-01 17:28:43,250:INFO:Exported cleaned user_credit_card to CSV successfully.
-2024-12-01 17:28:43,268:INFO:Exported cleaned user_data to CSV successfully.
-2024-12-01 17:28:43,273:INFO:Exported cleaned user_job to CSV successfully.
+2024-12-01 20:33:53,236:INFO:Duplicates: Empty DataFrame
+Columns: [user_id, creation_date, name, street, state, city, country, birthdate, gender, device_address, user_type]
+Index: []
+2024-12-01 20:33:53,253:INFO:Duplicates: Empty DataFrame
+Columns: [user_id, name, job_title, job_level]
+Index: []
+2024-12-01 20:33:53,255:INFO:Checked and resolved duplicates successfully.
+2024-12-01 20:33:53,266:INFO:Exported cleaned user_credit_card to CSV successfully.
+2024-12-01 20:33:53,282:INFO:Exported cleaned user_data to CSV successfully.
+2024-12-01 20:33:53,289:INFO:Exported cleaned user_job to CSV successfully.
