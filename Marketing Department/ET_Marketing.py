@@ -71,6 +71,9 @@ df2.rename(columns={'estimated arrival': 'estimated_arrival_in_days'}, inplace=T
 df2['estimated_arrival_in_days'] = df2['estimated_arrival_in_days'].apply(lambda x: re.sub(r'\D', '', str(x)))
 df2['estimated_arrival_in_days'] = pd.to_numeric(df2['estimated_arrival_in_days'], errors='coerce')
 
+# Cast to boolean availed
+df2['availed'] = df2['availed'].astype(bool)
+
 # Check for duplicate order_ids
 duplicate_order_ids = df2[df2.duplicated(subset=['order_id'], keep=False)]
 if not duplicate_order_ids.empty:
