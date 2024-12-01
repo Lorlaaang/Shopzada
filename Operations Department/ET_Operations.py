@@ -5,9 +5,9 @@ import re
 
 # Define directories
 base_folder = os.getcwd()
-raw_data_folder = os.path.join(base_folder, "Operations Department", "Raw Data")
-cleaned_data_folder = os.path.join(base_folder, "Operations Department", "Cleaned Data")
-logs_file_path = os.path.join(base_folder, "Operations Department", "Logs_Operations.txt")
+raw_data_folder = os.path.join(base_folder, "Raw Data")
+cleaned_data_folder = os.path.join(base_folder, "Cleaned Data")
+logs_file_path = os.path.join(base_folder, "Logs_Operations.txt")
 
 # Configure logging
 logging.basicConfig(
@@ -160,7 +160,10 @@ def merge_files(prices_file, products_file, output_index):
         products_df.columns = products_df.columns.str.strip()
 
         # Merge on order_id
-        merged_df = pd.merge(prices_df, products_df, on="order_id", how="inner")
+        merged_df = pd.merge(products_df, prices_df, left_index=True, right_index=True)
+        
+        merged_df.drop(columns=['order_id_x'], inplace=True)
+        merged_df = merged_df.rename(columns={'order_id_y': 'order_id'})
 
         # Clean merged data
         merged_df = transform_merged_data(merged_df)
