@@ -107,12 +107,13 @@ def transform_data(df, table_name):
         logging.error(f"Error transforming data for {table_name}: {e}")
         raise
 
-# Process and save cleaned data
+# Process and save cleaned data as CSV
 def process_file(file_name, table_name):
     try:
         file_extension = file_name.split(".")[-1]
         file_path = os.path.join(raw_data_folder, file_name)
-        output_file_path = os.path.join(cleaned_data_folder, f"cleaned_{file_name}")
+        output_file_name = f"cleaned_{file_name.rsplit('.', 1)[0]}.csv"
+        output_file_path = os.path.join(cleaned_data_folder, output_file_name)
 
         if file_extension == "csv":
             df = pd.read_csv(file_path)
@@ -131,17 +132,7 @@ def process_file(file_name, table_name):
             return
 
         df = transform_data(df, table_name)
-
-        # Save cleaned data to the appropriate file format
-        if file_extension in ["csv", "xlsx", "json"]:
-            df.to_csv(output_file_path, index=False)
-        elif file_extension == "parquet":
-            df.to_parquet(output_file_path, index=False)
-        elif file_extension == "html":
-            df.to_html(output_file_path, index=False)
-        elif file_extension == "pickle":
-            df.to_pickle(output_file_path)
-
+        df.to_csv(output_file_path, index=False)
         logging.info(f"Cleaned data saved to {output_file_path}")
 
     except Exception as e:
