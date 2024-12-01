@@ -8,3 +8,8 @@
 2024-12-01 21:34:20,197:INFO:Cleaned product_type successfully.
 2024-12-01 21:34:20,198:INFO:Standardized price successfully.
 2024-12-01 21:34:20,202:INFO:Exported cleaned product_list to CSV successfully.
+2024-12-01 21:52:16,057:INFO:Loaded product_list.xlsx successfully.
+2024-12-01 21:52:16,059:INFO:Cleaned product_list successfully.
+2024-12-01 21:52:16,060:INFO:Cleaned product_type successfully.
+2024-12-01 21:52:16,060:INFO:Standardized price successfully.
+2024-12-01 21:52:16,064:INFO:Exported cleaned product_list to CSV successfully.
