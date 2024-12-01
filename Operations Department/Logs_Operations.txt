@@ -1,0 +1,527 @@
+2024-12-01 16:41:17,680 - INFO - Transforming data for table: orders
+2024-12-01 16:41:17,680 - INFO - Before dropping duplicates: 32288 rows
+2024-12-01 16:41:17,690 - INFO - After dropping duplicates: 32288 rows
+2024-12-01 16:41:17,690 - INFO - Before dropping nulls: 32288 rows
+2024-12-01 16:41:17,695 - INFO - After dropping nulls: 32288 rows
+2024-12-01 16:41:17,697 - INFO - Before cleaning user_id: 0    USER28531
+1    USER56935
+2    USER11824
+3    USER51578
+4    USER51925
+Name: user_id, dtype: object
+2024-12-01 16:41:17,731 - INFO - After cleaning user_id: 0    U28531
+1    U56935
+2    U11824
+3    U51578
+4    U51925
+Name: user_id, dtype: object
+2024-12-01 16:41:17,734 - INFO - Before cleaning estimated_arrival_in_days: 0    13days
+1    13days
+2    13days
+3    15days
+4     9days
+Name: estimated_arrival_in_days, dtype: object
+2024-12-01 16:41:17,799 - INFO - After cleaning estimated_arrival_in_days: 0    13
+1    13
+2    13
+3    15
+4     9
+Name: estimated_arrival_in_days, dtype: int64
+2024-12-01 16:41:17,800 - INFO - Before cleaning transaction_date: 0    2021-10-12
+1    2021-10-15
+2    2021-10-11
+3    2021-10-22
+4    2021-10-09
+Name: transaction_date, dtype: object
+2024-12-01 16:41:17,821 - INFO - After cleaning transaction_date: 0    2021-10-12
+1    2021-10-15
+2    2021-10-11
+3    2021-10-22
+4    2021-10-09
+Name: transaction_date, dtype: object
+2024-12-01 16:41:17,822 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id user_id  estimated_arrival_in_days transaction_date
+0           4  b4c411de-2fd3-4806-91ae-165edc9baa12  U28531                         13       2021-10-12
+1           7  d42d7e7a-71bd-43aa-8bed-49d52b74d4eb  U56935                         13       2021-10-15
+2          41  84295de8-90c2-4e67-a1d9-b1ffab45623f  U11824                         13       2021-10-11
+3          43  74a59808-b7f5-4dc1-b441-a8e0e15b49b6  U51578                         15       2021-10-22
+4          61  b3965e7d-23d7-475b-93f0-13b49a999030  U51925                          9       2021-10-09
+2024-12-01 16:41:17,872 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_data_20211001-20220101.csv
+2024-12-01 16:41:17,923 - INFO - Transforming data for table: orders
+2024-12-01 16:41:17,923 - INFO - Before dropping duplicates: 63024 rows
+2024-12-01 16:41:17,943 - INFO - After dropping duplicates: 63024 rows
+2024-12-01 16:41:17,943 - INFO - Before dropping nulls: 63024 rows
+2024-12-01 16:41:17,950 - INFO - After dropping nulls: 63024 rows
+2024-12-01 16:41:17,952 - INFO - Before cleaning user_id: 12    USER16283
+19    USER08179
+25    USER55688
+29    USER34967
+37    USER07130
+Name: user_id, dtype: object
+2024-12-01 16:41:18,005 - INFO - After cleaning user_id: 12    U16283
+19    U08179
+25    U55688
+29    U34967
+37    U07130
+Name: user_id, dtype: object
+2024-12-01 16:41:18,005 - INFO - Before cleaning estimated_arrival_in_days: 12    13days
+19     8days
+25    10days
+29     8days
+37    15days
+Name: estimated_arrival_in_days, dtype: object
+2024-12-01 16:41:18,120 - INFO - After cleaning estimated_arrival_in_days: 12    13
+19     8
+25    10
+29     8
+37    15
+Name: estimated_arrival_in_days, dtype: int64
+2024-12-01 16:41:18,121 - INFO - Before cleaning transaction_date: 12    2020-06-04
+19    2020-04-07
+25    2020-05-07
+29    2020-06-05
+37    2020-05-24
+Name: transaction_date, dtype: object
+2024-12-01 16:41:18,152 - INFO - After cleaning transaction_date: 12    2020-06-04
+19    2020-04-07
+25    2020-05-07
+29    2020-06-05
+37    2020-05-24
+Name: transaction_date, dtype: object
+2024-12-01 16:41:18,153 - INFO - Preview of transformed data:
+                                order_id user_id  estimated_arrival_in_days transaction_date
+12  0248bb48-d0d0-4a11-a158-f620640a757a  U16283                         13       2020-06-04
+19  14473b59-6c4f-429e-89ef-ce920b209df3  U08179                          8       2020-04-07
+25  62b8fabf-4e0a-4383-8b3a-7276c77f9e8c  U55688                         10       2020-05-07
+29  96a01cee-071d-4e10-a9e4-56a31b82a9d5  U34967                          8       2020-06-05
+37  479b1a6c-3a76-41a7-b15d-71acd4045080  U07130                         15       2020-05-24
+2024-12-01 16:41:18,188 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_data_20200101-20200701.parquet
+2024-12-01 16:41:18,342 - INFO - Transforming data for table: orders
+2024-12-01 16:41:18,343 - INFO - Before dropping duplicates: 63744 rows
+2024-12-01 16:41:18,373 - INFO - After dropping duplicates: 63744 rows
+2024-12-01 16:41:18,373 - INFO - Before dropping nulls: 63744 rows
+2024-12-01 16:41:18,391 - INFO - After dropping nulls: 63744 rows
+2024-12-01 16:41:18,392 - INFO - Before cleaning user_id: 6     USER36943
+11    USER10211
+34    USER28839
+44    USER00089
+45    USER63283
+Name: user_id, dtype: object
+2024-12-01 16:41:18,459 - INFO - After cleaning user_id: 6     U36943
+11    U10211
+34    U28839
+44    U00089
+45    U63283
+Name: user_id, dtype: object
+2024-12-01 16:41:18,460 - INFO - Before cleaning estimated_arrival_in_days: 6      3days
+11     7days
+34     3days
+44     4days
+45    12days
+Name: estimated_arrival_in_days, dtype: object
+2024-12-01 16:41:18,596 - INFO - After cleaning estimated_arrival_in_days: 6      3
+11     7
+34     3
+44     4
+45    12
+Name: estimated_arrival_in_days, dtype: int64
+2024-12-01 16:41:18,597 - INFO - Before cleaning transaction_date: 6     2023-01-30
+11    2023-04-13
+34    2023-04-05
+44    2023-04-07
+45    2023-04-18
+Name: transaction_date, dtype: object
+2024-12-01 16:41:18,641 - INFO - After cleaning transaction_date: 6     2023-01-30
+11    2023-04-13
+34    2023-04-05
+44    2023-04-07
+45    2023-04-18
+Name: transaction_date, dtype: object
+2024-12-01 16:41:18,643 - INFO - Preview of transformed data:
+                                order_id user_id  estimated_arrival_in_days transaction_date
+6   26de6b40-db2d-40b9-a64c-58736eaf0381  U36943                          3       2023-01-30
+11  71ef25bd-1146-4ac9-b371-ede0cda08093  U10211                          7       2023-04-13
+34  d06a6ad2-b254-4cc6-8397-4c9bf1a2823e  U28839                          3       2023-04-05
+44  8bfbd31b-5a72-4c80-9e95-9168e9d822e3  U00089                          4       2023-04-07
+45  3fab0712-4542-4779-89cc-29518063ce8f  U63283                         12       2023-04-18
+2024-12-01 16:41:18,739 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_data_20221201-20230601.json
+2024-12-01 16:41:18,814 - INFO - Transforming data for table: orders
+2024-12-01 16:41:18,814 - INFO - Before dropping duplicates: 159725 rows
+2024-12-01 16:41:18,903 - INFO - After dropping duplicates: 159725 rows
+2024-12-01 16:41:18,903 - INFO - Before dropping nulls: 159725 rows
+2024-12-01 16:41:18,933 - INFO - After dropping nulls: 159725 rows
+2024-12-01 16:41:18,934 - INFO - Before cleaning user_id: 1     USER36309
+10    USER46704
+14    USER32071
+15    USER47160
+16    USER15307
+Name: user_id, dtype: object
+2024-12-01 16:41:19,107 - INFO - After cleaning user_id: 1     U36309
+10    U46704
+14    U32071
+15    U47160
+16    U15307
+Name: user_id, dtype: object
+2024-12-01 16:41:19,109 - INFO - Before cleaning estimated_arrival_in_days: 1     13days
+10     5days
+14    10days
+15     3days
+16    11days
+Name: estimated_arrival_in_days, dtype: object
+2024-12-01 16:41:19,435 - INFO - After cleaning estimated_arrival_in_days: 1     13
+10     5
+14    10
+15     3
+16    11
+Name: estimated_arrival_in_days, dtype: int64
+2024-12-01 16:41:19,436 - INFO - Before cleaning transaction_date: 1     2021-01-01
+10    2021-09-22
+14    2020-07-06
+15    2021-09-25
+16    2020-07-01
+Name: transaction_date, dtype: object
+2024-12-01 16:41:19,528 - INFO - After cleaning transaction_date: 1     2021-01-01
+10    2021-09-22
+14    2020-07-06
+15    2021-09-25
+16    2020-07-01
+Name: transaction_date, dtype: object
+2024-12-01 16:41:19,530 - INFO - Preview of transformed data:
+                                order_id user_id  estimated_arrival_in_days transaction_date
+1   e1beaf61-e687-4e70-bdd4-3ea338139a0b  U36309                         13       2021-01-01
+10  4cad07a9-dca9-47a0-86f1-f83671d05260  U46704                          5       2021-09-22
+14  8750f8c5-380c-4bbd-bb54-8a2b5e5958ac  U32071                         10       2020-07-06
+15  3d77b756-0f11-4145-9fac-8f229611ac39  U47160                          3       2021-09-25
+16  3312851e-28dc-4508-8003-09ba304ce9e2  U15307                         11       2020-07-01
+2024-12-01 16:41:19,633 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_data_20200701-20211001.pickle
+2024-12-01 16:41:22,881 - INFO - Transforming data for table: orders
+2024-12-01 16:41:22,882 - INFO - Before dropping duplicates: 64046 rows
+2024-12-01 16:41:22,906 - INFO - After dropping duplicates: 64046 rows
+2024-12-01 16:41:22,906 - INFO - Before dropping nulls: 64046 rows
+2024-12-01 16:41:22,913 - INFO - After dropping nulls: 64046 rows
+2024-12-01 16:41:22,914 - INFO - Before cleaning user_id: 0    USER24284
+1    USER47513
+2    USER50778
+3    USER44062
+4    USER48153
+Name: user_id, dtype: object
+2024-12-01 16:41:22,972 - INFO - After cleaning user_id: 0    U24284
+1    U47513
+2    U50778
+3    U44062
+4    U48153
+Name: user_id, dtype: object
+2024-12-01 16:41:22,972 - INFO - Before cleaning estimated_arrival_in_days: 0    10days
+1    15days
+2    14days
+3     8days
+4    15days
+Name: estimated_arrival_in_days, dtype: object
+2024-12-01 16:41:23,091 - INFO - After cleaning estimated_arrival_in_days: 0    10
+1    15
+2    14
+3     8
+4    15
+Name: estimated_arrival_in_days, dtype: int64
+2024-12-01 16:41:23,092 - INFO - Before cleaning transaction_date: 0    2023-08-14
+1    2023-10-30
+2    2023-09-19
+3    2023-07-11
+4    2023-07-21
+Name: transaction_date, dtype: object
+2024-12-01 16:41:23,124 - INFO - After cleaning transaction_date: 0    2023-08-14
+1    2023-10-30
+2    2023-09-19
+3    2023-07-11
+4    2023-07-21
+Name: transaction_date, dtype: object
+2024-12-01 16:41:23,125 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id user_id  estimated_arrival_in_days transaction_date
+0           2  0612c246-57f1-40e8-9993-0f8d41992049  U24284                         10       2023-08-14
+1           5  74e7c07a-d266-492f-a8f7-22987013d7e1  U47513                         15       2023-10-30
+2           9  4aab29ae-e610-46bf-92af-199f6f420cee  U50778                         14       2023-09-19
+3          18  89c3c238-2ae5-4883-bba5-08e23dbedee3  U44062                          8       2023-07-11
+4          20  03c25b03-a7cc-4758-8490-cdd5dd492646  U48153                         15       2023-07-21
+2024-12-01 16:41:24,731 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_data_20230601-20240101.html
+2024-12-01 16:41:30,867 - INFO - Transforming data for table: orders
+2024-12-01 16:41:30,867 - INFO - Before dropping duplicates: 117173 rows
+2024-12-01 16:41:31,132 - INFO - After dropping duplicates: 117173 rows
+2024-12-01 16:41:31,134 - INFO - Before dropping nulls: 117173 rows
+2024-12-01 16:41:31,327 - INFO - After dropping nulls: 117173 rows
+2024-12-01 16:41:31,373 - INFO - Before cleaning user_id: 0    USER23985
+1    USER44549
+2    USER53013
+3    USER55595
+4    USER29425
+Name: user_id, dtype: object
+2024-12-01 16:41:31,506 - INFO - After cleaning user_id: 0    U23985
+1    U44549
+2    U53013
+3    U55595
+4    U29425
+Name: user_id, dtype: object
+2024-12-01 16:41:31,507 - INFO - Before cleaning estimated_arrival_in_days: 0    12days
+1     9days
+2     8days
+3     8days
+4     8days
+Name: estimated_arrival_in_days, dtype: object
+2024-12-01 16:41:31,745 - INFO - After cleaning estimated_arrival_in_days: 0    12
+1     9
+2     8
+3     8
+4     8
+Name: estimated_arrival_in_days, dtype: int64
+2024-12-01 16:41:31,745 - INFO - Before cleaning transaction_date: 0    2022-08-13
+1    2022-11-11
+2    2022-01-05
+3    2022-05-29
+4    2022-11-17
+Name: transaction_date, dtype: object
+2024-12-01 16:41:31,802 - INFO - After cleaning transaction_date: 0    2022-08-13
+1    2022-11-11
+2    2022-01-05
+3    2022-05-29
+4    2022-11-17
+Name: transaction_date, dtype: object
+2024-12-01 16:41:31,803 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id user_id  estimated_arrival_in_days transaction_date
+0           0  eac330c0-457a-4faa-b15a-52a3c440e7f3  U23985                         12       2022-08-13
+1           3  a800f0d9-47d8-455b-b096-622e76156705  U44549                          9       2022-11-11
+2           8  26b60a4e-aafe-4b99-bace-034d088a4a53  U53013                          8       2022-01-05
+3          13  96c718b3-0de0-482c-8b05-9081d47314c6  U55595                          8       2022-05-29
+4          21  0e6eeff9-dc85-4e22-9d0d-0758f2e321f6  U29425                          8       2022-11-17
+2024-12-01 16:41:31,971 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_data_20220101-20221201.xlsx
+2024-12-01 16:41:32,251 - INFO - Transforming data for table: line_items
+2024-12-01 16:41:32,251 - INFO - Before dropping duplicates: 500000 rows
+2024-12-01 16:41:32,383 - INFO - After dropping duplicates: 500000 rows
+2024-12-01 16:41:32,383 - INFO - Before dropping nulls: 500000 rows
+2024-12-01 16:41:32,418 - INFO - After dropping nulls: 500000 rows
+2024-12-01 16:41:32,418 - INFO - Before cleaning quantity: 0        6px
+1    6pieces
+2       4pcs
+3        4px
+4    5pieces
+Name: quantity, dtype: object
+2024-12-01 16:41:32,785 - INFO - After cleaning quantity: 0    6
+1    6
+2    4
+3    4
+4    5
+Name: quantity, dtype: int32
+2024-12-01 16:41:32,785 - INFO - Before cleaning price: 0    12.81
+1    14.00
+2     6.78
+3     8.72
+4     8.83
+Name: price, dtype: float64
+2024-12-01 16:41:32,909 - INFO - After cleaning price: 0    12.81
+1    14.00
+2     6.78
+3     8.72
+4     8.83
+Name: price, dtype: object
+2024-12-01 16:41:32,910 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id  price  quantity
+0           0  8d8acbac-ccbb-4609-a978-98dee3ac3088  12.81         6
+1           1  59e4c308-5262-486d-9f1a-12b1278e3c44  14.00         6
+2           2  30fc1b76-c488-4077-8d70-3236e3afc990   6.78         4
+3           3  6b273d38-b472-4bb2-8b74-a26705c707fa   8.72         4
+4           4  6b273d38-b472-4bb2-8b74-a26705c707fa   8.83         5
+2024-12-01 16:41:33,511 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_line_item_data_prices1.csv
+2024-12-01 16:41:33,766 - INFO - Transforming data for table: line_items
+2024-12-01 16:41:33,766 - INFO - Before dropping duplicates: 500000 rows
+2024-12-01 16:41:33,872 - INFO - After dropping duplicates: 500000 rows
+2024-12-01 16:41:33,873 - INFO - Before dropping nulls: 500000 rows
+2024-12-01 16:41:33,895 - INFO - After dropping nulls: 500000 rows
+2024-12-01 16:41:33,896 - INFO - Before cleaning quantity: 0        4PC
+1       4pcs
+2       4PCs
+3       2PCs
+4    4pieces
+Name: quantity, dtype: object
+2024-12-01 16:41:34,294 - INFO - After cleaning quantity: 0    4
+1    4
+2    4
+3    2
+4    4
+Name: quantity, dtype: int32
+2024-12-01 16:41:34,294 - INFO - Before cleaning price: 0    38.07
+1    38.07
+2    38.07
+3    38.07
+4    38.07
+Name: price, dtype: float64
+2024-12-01 16:41:34,430 - INFO - After cleaning price: 0    38.07
+1    38.07
+2    38.07
+3    38.07
+4    38.07
+Name: price, dtype: object
+2024-12-01 16:41:34,431 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id  price  quantity
+0      500000  f1c591a5-fd7c-498f-ae4e-2739334878ce  38.07         4
+1      500001  8a720341-a145-4a7c-b2d5-ac3c6e0d8da8  38.07         4
+2      500002  8a720341-a145-4a7c-b2d5-ac3c6e0d8da8  38.07         4
+3      500003  fd365f1c-9c25-4544-b4b2-fd9f55d3e6e2  38.07         2
+4      500004  fd365f1c-9c25-4544-b4b2-fd9f55d3e6e2  38.07         4
+2024-12-01 16:41:35,044 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_line_item_data_prices2.csv
+2024-12-01 16:41:35,258 - INFO - Transforming data for table: line_items
+2024-12-01 16:41:35,258 - INFO - Before dropping duplicates: 997174 rows
+2024-12-01 16:41:35,490 - INFO - After dropping duplicates: 997174 rows
+2024-12-01 16:41:35,490 - INFO - Before dropping nulls: 997174 rows
+2024-12-01 16:41:35,539 - INFO - After dropping nulls: 997174 rows
+2024-12-01 16:41:35,539 - INFO - Before cleaning quantity: 0       8PC
+1    5piece
+2      10PC
+3      5pcs
+4       5PC
+Name: quantity, dtype: object
+2024-12-01 16:41:36,253 - INFO - After cleaning quantity: 0     8
+1     5
+2    10
+3     5
+4     5
+Name: quantity, dtype: int32
+2024-12-01 16:41:36,255 - INFO - Before cleaning price: 0    42.13
+1    42.13
+2    42.13
+3    42.13
+4    40.87
+Name: price, dtype: float64
+2024-12-01 16:41:36,505 - INFO - After cleaning price: 0    42.13
+1    42.13
+2    42.13
+3    42.13
+4    40.87
+Name: price, dtype: object
+2024-12-01 16:41:36,506 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id  price  quantity
+0     1000000  dc70f978-3a6b-4baf-b97e-4a88690a34fe  42.13         8
+1     1000001  dc70f978-3a6b-4baf-b97e-4a88690a34fe  42.13         5
+2     1000002  3556b3e7-046a-4148-b1cb-d86ee7ee5421  42.13        10
+3     1000003  3556b3e7-046a-4148-b1cb-d86ee7ee5421  42.13         5
+4     1000004  29b63149-3b3c-4309-a751-7d0a563f7c12  40.87         5
+2024-12-01 16:41:36,776 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_line_item_data_prices3.parquet
+2024-12-01 16:41:37,094 - INFO - Transforming data for table: products
+2024-12-01 16:41:37,094 - INFO - Before dropping duplicates: 500000 rows
+2024-12-01 16:41:37,249 - INFO - After dropping duplicates: 500000 rows
+2024-12-01 16:41:37,250 - INFO - Before dropping nulls: 500000 rows
+2024-12-01 16:41:37,281 - INFO - After dropping nulls: 500000 rows
+2024-12-01 16:41:37,282 - INFO - Before cleaning product_name: 0    Grandmas swedish thin pancakes
+1         Blackberry breakfast bars
+2              Moms cheat doughnuts
+3         Baked swiss cheese omelet
+4                       Egg flowers
+Name: product_name, dtype: object
+2024-12-01 16:41:37,372 - INFO - After cleaning product_name: 0    Grandmas Swedish Thin Pancakes
+1         Blackberry Breakfast Bars
+2              Moms Cheat Doughnuts
+3         Baked Swiss Cheese Omelet
+4                       Egg Flowers
+Name: product_name, dtype: object
+2024-12-01 16:41:37,373 - INFO - Before cleaning product_id: 0    PRODUCT16794
+1    PRODUCT56387
+2    PRODUCT26612
+3    PRODUCT17344
+4    PRODUCT07816
+Name: product_id, dtype: object
+2024-12-01 16:41:37,802 - INFO - After cleaning product_id: 0    P16794
+1    P56387
+2    P26612
+3    P17344
+4    P07816
+Name: product_id, dtype: object
+2024-12-01 16:41:37,846 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id                    product_name product_id
+0           0  8d8acbac-ccbb-4609-a978-98dee3ac3088  Grandmas Swedish Thin Pancakes     P16794
+1           1  59e4c308-5262-486d-9f1a-12b1278e3c44       Blackberry Breakfast Bars     P56387
+2           2  30fc1b76-c488-4077-8d70-3236e3afc990            Moms Cheat Doughnuts     P26612
+3           3  6b273d38-b472-4bb2-8b74-a26705c707fa       Baked Swiss Cheese Omelet     P17344
+4           4  6b273d38-b472-4bb2-8b74-a26705c707fa                     Egg Flowers     P07816
+2024-12-01 16:41:38,522 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_line_item_data_products1.csv
+2024-12-01 16:41:38,798 - INFO - Transforming data for table: products
+2024-12-01 16:41:38,798 - INFO - Before dropping duplicates: 500000 rows
+2024-12-01 16:41:38,925 - INFO - After dropping duplicates: 500000 rows
+2024-12-01 16:41:38,925 - INFO - Before dropping nulls: 500000 rows
+2024-12-01 16:41:38,959 - INFO - After dropping nulls: 500000 rows
+2024-12-01 16:41:38,960 - INFO - Before cleaning product_name: 0            clock
+1    book of jokes
+2    book of jokes
+3    book of jokes
+4    book of jokes
+Name: product_name, dtype: object
+2024-12-01 16:41:39,052 - INFO - After cleaning product_name: 0            Clock
+1    Book Of Jokes
+2    Book Of Jokes
+3    Book Of Jokes
+4    Book Of Jokes
+Name: product_name, dtype: object
+2024-12-01 16:41:39,052 - INFO - Before cleaning product_id: 0    PRODUCT14601
+1    PRODUCT63300
+2    PRODUCT63300
+3    PRODUCT63300
+4    PRODUCT63300
+Name: product_id, dtype: object
+2024-12-01 16:41:39,477 - INFO - After cleaning product_id: 0    P14601
+1    P63300
+2    P63300
+3    P63300
+4    P63300
+Name: product_id, dtype: object
+2024-12-01 16:41:39,478 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id   product_name product_id
+0      500000  f1c591a5-fd7c-498f-ae4e-2739334878ce          Clock     P14601
+1      500001  8a720341-a145-4a7c-b2d5-ac3c6e0d8da8  Book Of Jokes     P63300
+2      500002  8a720341-a145-4a7c-b2d5-ac3c6e0d8da8  Book Of Jokes     P63300
+3      500003  fd365f1c-9c25-4544-b4b2-fd9f55d3e6e2  Book Of Jokes     P63300
+4      500004  fd365f1c-9c25-4544-b4b2-fd9f55d3e6e2  Book Of Jokes     P63300
+2024-12-01 16:41:40,169 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_line_item_data_products2.csv
+2024-12-01 16:41:40,406 - INFO - Transforming data for table: products
+2024-12-01 16:41:40,406 - INFO - Before dropping duplicates: 997174 rows
+2024-12-01 16:41:40,663 - INFO - After dropping duplicates: 997174 rows
+2024-12-01 16:41:40,663 - INFO - Before dropping nulls: 997174 rows
+2024-12-01 16:41:40,732 - INFO - After dropping nulls: 997174 rows
+2024-12-01 16:41:40,733 - INFO - Before cleaning product_name: 0    Swedish cucumber salad pressgurka
+1    Swedish cucumber salad pressgurka
+2    Swedish cucumber salad pressgurka
+3    Swedish cucumber salad pressgurka
+4                    Savory pita chips
+Name: product_name, dtype: object
+2024-12-01 16:41:40,929 - INFO - After cleaning product_name: 0    Swedish Cucumber Salad Pressgurka
+1    Swedish Cucumber Salad Pressgurka
+2    Swedish Cucumber Salad Pressgurka
+3    Swedish Cucumber Salad Pressgurka
+4                    Savory Pita Chips
+Name: product_name, dtype: object
+2024-12-01 16:41:40,930 - INFO - Before cleaning product_id: 0    PRODUCT20506
+1    PRODUCT20506
+2    PRODUCT20506
+3    PRODUCT20506
+4    PRODUCT34708
+Name: product_id, dtype: object
+2024-12-01 16:41:41,855 - INFO - After cleaning product_id: 0    P20506
+1    P20506
+2    P20506
+3    P20506
+4    P34708
+Name: product_id, dtype: object
+2024-12-01 16:41:41,858 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id                       product_name product_id
+0     1000000  dc70f978-3a6b-4baf-b97e-4a88690a34fe  Swedish Cucumber Salad Pressgurka     P20506
+1     1000001  dc70f978-3a6b-4baf-b97e-4a88690a34fe  Swedish Cucumber Salad Pressgurka     P20506
+2     1000002  3556b3e7-046a-4148-b1cb-d86ee7ee5421  Swedish Cucumber Salad Pressgurka     P20506
+3     1000003  3556b3e7-046a-4148-b1cb-d86ee7ee5421  Swedish Cucumber Salad Pressgurka     P20506
+4     1000004  29b63149-3b3c-4309-a751-7d0a563f7c12                  Savory Pita Chips     P34708
+2024-12-01 16:41:42,205 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_line_item_data_products3.parquet
+2024-12-01 16:41:49,227 - INFO - Transforming data for table: order_delays
+2024-12-01 16:41:49,227 - INFO - Before dropping duplicates: 200000 rows
+2024-12-01 16:41:49,288 - INFO - After dropping duplicates: 200000 rows
+2024-12-01 16:41:49,289 - INFO - Preview of transformed data:
+   Unnamed: 0                              order_id  delay in days
+0       24261  a0c62902-2728-4b38-bf40-89816ebe183f              9
+1      345824  17902aef-e623-48c0-a865-ab427be0f114              7
+2      398475  ce47737b-2253-4ff6-90c6-2b5955d1de1e              7
+3      241232  fc3312cf-f014-4c14-a04d-b26403835c03              5
+4      446720  c0053e4c-5b10-4e31-97f6-2d60866e2fbb              6
+2024-12-01 16:41:52,598 - INFO - Cleaned data saved to C:\Users\LGU POLANGUI - PRDP\Documents\Python Projects\Shopzada\Operations Department\Cleaned Data\cleaned_order_delays.html
