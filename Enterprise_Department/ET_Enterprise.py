@@ -77,27 +77,26 @@ def process_order_files():
     duplicate_columns = ['order_id', 'merchant_id', 'staff_id']
 
     df1 = pd.read_parquet('Raw Data/order_with_merchant_data1.parquet')
+    check_duplicates(df1, duplicate_columns, "order_with_merchant_data1")
+    check_null_values(df1, "order_with_merchant_data1")
     df1['merchant_id'] = df1['merchant_id'].apply(standardize_merchant_id)
     df1['staff_id'] = df1['staff_id'].apply(standardize_staff_id)
-    check_duplicates(df1, duplicate_columns, "order_with_merchant_data1")
-    check_null_values(df1, "order_with_merchant_data1")  # Check for null values
     df1.to_parquet('Cleaned Data/cleaned_order_with_merchant_data1.parquet', index=False)
 
     df2 = pd.read_parquet('Raw Data/order_with_merchant_data2.parquet')
-    df2['merchant_id'] = df2['merchant_id'].apply(standardize_merchant_id)
-    df2['staff_id'] = df2['staff_id'].apply(standardize_staff_id)
     check_duplicates(df2, duplicate_columns, "order_with_merchant_data2")
     check_null_values(df2, "order_with_merchant_data2")  
+    df2['merchant_id'] = df2['merchant_id'].apply(standardize_merchant_id)
+    df2['staff_id'] = df2['staff_id'].apply(standardize_staff_id)
     df2.to_parquet('Cleaned Data/cleaned_order_with_merchant_data2.parquet', index=False)
 
     df3 = pd.read_csv('Raw Data/order_with_merchant_data3.csv')
-    df3['merchant_id'] = df3['merchant_id'].apply(standardize_merchant_id)
-    df3['staff_id'] = df3['staff_id'].apply(standardize_staff_id)
     unnamed_columns = [col for col in df3.columns if col.lower().startswith('unnamed')]
     df3.drop(columns=unnamed_columns, inplace=True)
-
     check_duplicates(df3, duplicate_columns, "order_with_merchant_data3")
     check_null_values(df3, "order_with_merchant_data3")  
+    df3['merchant_id'] = df3['merchant_id'].apply(standardize_merchant_id)
+    df3['staff_id'] = df3['staff_id'].apply(standardize_staff_id)
     df3.to_csv('Cleaned Data/cleaned_order_with_merchant_data3.csv', index=False)
 
     print("Order with Merchant Data cleaned")
@@ -107,30 +106,9 @@ def process_merchant_data():
     df_list = pd.read_html('Raw Data/merchant_data.html') 
     df = df_list[0] 
 
-    # Standardize street
-    df['street'] = df['street'].apply(standardize_street_name)
-
     # Delete unnecessary columns
     unnamed_columns = [col for col in df.columns if col.lower().startswith('unnamed')]
     df.drop(columns=unnamed_columns, inplace=True)
-
-    # Standardize merchant_id 
-    df['merchant_id'] = df['merchant_id'].apply(standardize_merchant_id)
-    
-    # Format creation_date 
-    df['creation_date'] = pd.to_datetime(df['creation_date']).dt.strftime('%Y-%m-%dT%H:%M:%S')
-    
-    # Standardize contact_number 
-    df['contact_number'] = df['contact_number'].apply(standardize_phone)
-    
-    # Standardize country names
-    df['country'] = df['country'].apply(standardize_country)
-    
-    # Ensure consistent column names
-    df.columns = df.columns.str.lower().str.replace(' ', '_')
-
-    # Sort by 'creation_date' 
-    df.sort_values(by='creation_date', ascending=True, inplace=True)
 
     # Drop duplicate merchant_id and names
     check_duplicates(df, ['merchant_id'], "merchant_data")
@@ -142,6 +120,27 @@ def process_merchant_data():
         print("Duplicate names found! Dropping the duplicates....")
     df = df.drop_duplicates(subset='name', keep='first')
 
+    # Standardize street
+    df['street'] = df['street'].apply(standardize_street_name)
+
+    # Standardize country names
+    df['country'] = df['country'].apply(standardize_country)
+
+    # Standardize merchant_id 
+    df['merchant_id'] = df['merchant_id'].apply(standardize_merchant_id)
+    
+    # Format creation_date 
+    df['creation_date'] = pd.to_datetime(df['creation_date']).dt.strftime('%Y-%m-%dT%H:%M:%S')
+    
+    # Standardize contact_number 
+    df['contact_number'] = df['contact_number'].apply(standardize_phone)
+    
+    # Ensure consistent column names
+    df.columns = df.columns.str.lower().str.replace(' ', '_')
+
+    # Sort by 'creation_date' 
+    df.sort_values(by='creation_date', ascending=True, inplace=True)
+
     # Save the DataFrame
     df.to_html('Cleaned Data/cleaned_merchant_data.html', index=False)
     print(f"Cleaned data saved as cleaned_merchant_data.html")
@@ -149,17 +148,30 @@ def process_merchant_data():
 # Process staff data
 def process_staff_data():
     df_list = pd.read_html('Raw Data/staff_data.html')  
-    df = df_list[0] 
-
-    # Standardize street
-    df['street'] = df['street'].apply(standardize_street_name)
-    
-    # Standardize job_level
-    df['job_level'] = df['job_level'].apply(capitalize_first_word)
+    df = df_list[0]
 
     # Delete unnecessary columns
     unnamed_columns = [col for col in df.columns if col.lower().startswith('unnamed')]
     df.drop(columns=unnamed_columns, inplace=True)
+
+    # Delete duplicate staff_id and names
+    check_duplicates(df, ['staff_id'], "staff_data")
+    check_null_values(df, "staff_data")
+    df = df.drop_duplicates(subset='staff_id', keep='first')
+
+    name_duplicates = df[df.duplicated(subset='name', keep=False)]
+    if not name_duplicates.empty:
+        print("Duplicate staff name found! Dropping the duplicates....")
+    df = df.drop_duplicates(subset='name', keep='first') 
+
+    # Standardize street
+    df['street'] = df['street'].apply(standardize_street_name)
+
+    # Standardize country names
+    df['country'] = df['country'].apply(standardize_country)
+    
+    # Standardize job_level
+    df['job_level'] = df['job_level'].apply(capitalize_first_word)
 
     # Standardize staff_id
     df['staff_id'] = df['staff_id'].apply(standardize_staff_id)
@@ -170,24 +182,11 @@ def process_staff_data():
     # Standardize contact_number
     df['contact_number'] = df['contact_number'].apply(standardize_phone)
 
-    # Standardize country names
-    df['country'] = df['country'].apply(standardize_country)
-
     # Ensure consistent column names
     df.columns = df.columns.str.lower().str.replace(' ', '_')
 
     # Sort by 'creation_date'
     df.sort_values(by='creation_date', ascending=True, inplace=True)
-
-    # Delete duplicate staff_id and names
-    check_duplicates(df, ['staff_id'], "staff_data")
-    check_null_values(df, "staff_data")
-    df = df.drop_duplicates(subset='staff_id', keep='first')
-
-    name_duplicates = df[df.duplicated(subset='name', keep=False)]
-    if not name_duplicates.empty:
-        print("Duplicate staff name found! Dropping the duplicates....")
-    df = df.drop_duplicates(subset='name', keep='first')
 
     # Save the cleaned DataFrame as an HTML file
     df.to_html('Cleaned Data/cleaned_staff_data.html', index=False)
