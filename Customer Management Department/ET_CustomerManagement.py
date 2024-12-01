@@ -1,4 +1,5 @@
 import pandas as pd
+import hashlib
 import logging
 import os
 
@@ -54,7 +55,13 @@ def clean_user_credit_card(df):
         return name
 
     df['name'] = df['name'].apply(clean_name)
-    
+
+    # Hash credit card number
+    def hash_credit_card_number(credit_card_number):
+        return hashlib.sha256(str(credit_card_number).encode('utf-8')).hexdigest()
+
+    df['credit_card_number'] = df['credit_card_number'].apply(hash_credit_card_number)
+
     return df
 
 def clean_user_data(df):
