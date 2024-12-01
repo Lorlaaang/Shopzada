@@ -1,12 +1,15 @@
 import pandas as pd
 import logging
+import os
 
 # Configure logging
-logging.basicConfig(filename='business_department.log', level=logging.INFO, 
+log_path = os.path.join(os.path.dirname(__file__), 'business_department.log')
+logging.basicConfig(filename=log_path, level=logging.INFO, 
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-# File path
-product_list_path = r'Business_Department\product_list.xlsx'
+# File paths
+product_list_path = r'Business Department\Raw Data\product_list.xlsx'
+cleaned_product_list_path = r'Business Department\Cleaned Data\cleaned_product_list.csv'
 
 # Load the dataset
 try:
@@ -80,6 +83,13 @@ try:
     logging.info("Standardized price successfully.")
 except Exception as e:
     logging.error(f"Error processing product_list: {e}")
+
+# Export cleaned data to CSV
+try:
+    df_product_list.to_csv(cleaned_product_list_path, index=False)
+    logging.info("Exported cleaned product_list to CSV successfully.")
+except Exception as e:
+    logging.error(f"Error exporting cleaned product_list to CSV: {e}")
 
 # Verify the changes
 print("\nProduct List after standardization:")

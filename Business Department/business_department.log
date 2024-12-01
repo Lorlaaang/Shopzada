@@ -1,0 +1,5 @@
+2024-12-01 17:28:50,410:INFO:Loaded product_list.xlsx successfully.
+2024-12-01 17:28:50,416:INFO:Cleaned product_list successfully.
+2024-12-01 17:28:50,417:INFO:Cleaned product_type successfully.
+2024-12-01 17:28:50,417:INFO:Standardized price successfully.
+2024-12-01 17:28:50,420:INFO:Exported cleaned product_list to CSV successfully.
