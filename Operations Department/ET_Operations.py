@@ -24,6 +24,12 @@ def transform_data(df, table_name):
     try:
         logging.info(f"Transforming data for table: {table_name}")
 
+        # Drop unnamed columns
+        unnamed_columns = [col for col in df.columns if col.startswith("Unnamed")]
+        if unnamed_columns:
+            logging.info(f"Dropping unnamed columns: {unnamed_columns}")
+            df.drop(columns=unnamed_columns, inplace=True)
+
         # Handle duplicates
         logging.info(f"Before dropping duplicates: {len(df)} rows")
         df.drop_duplicates(inplace=True)
@@ -112,7 +118,7 @@ def process_file(file_name, table_name):
     try:
         file_extension = file_name.split(".")[-1]
         file_path = os.path.join(raw_data_folder, file_name)
-        output_file_name = f"cleaned_{file_name.rsplit('.', 1)[0]}.csv"
+        output_file_name = f"cleaned_{file_name.rsplit('.', 1)[0]}.csv" 
         output_file_path = os.path.join(cleaned_data_folder, output_file_name)
 
         if file_extension == "csv":
@@ -132,6 +138,7 @@ def process_file(file_name, table_name):
             return
 
         df = transform_data(df, table_name)
+
         df.to_csv(output_file_path, index=False)
         logging.info(f"Cleaned data saved to {output_file_path}")
 
