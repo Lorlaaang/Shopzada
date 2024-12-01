@@ -26,6 +26,23 @@ def transform_data(df, table_name):
     try:
         logging.info(f"Transforming data for table: {table_name}")
 
+        # Handle duplicates
+        logging.info(f"Before dropping duplicates: {len(df)} rows")
+        df.drop_duplicates(inplace=True)
+        logging.info(f"After dropping duplicates: {len(df)} rows")
+
+        # Drop nulls in critical columns based on table
+        critical_columns = {
+            "orders": ["order_id", "user_id", "transaction_date"],
+            "line_items": ["quantity", "price"],
+            "products": ["product_id", "product_name"],
+        }
+
+        if table_name in critical_columns:
+            logging.info(f"Before dropping nulls: {len(df)} rows")
+            df.dropna(subset=critical_columns[table_name], inplace=True)
+            logging.info(f"After dropping nulls: {len(df)} rows")
+
         if table_name == "orders":
             # Standardize 'User ID'
             if "user_id" in df.columns:
