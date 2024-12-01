@@ -60,6 +60,20 @@ unnamed_columns = [col for col in df2.columns if col.lower().startswith('unnamed
 if unnamed_columns:
     df2.drop(columns=unnamed_columns, inplace=True)
 
+# Standardize campaign_id
+df2['campaign_id'] = df2['campaign_id'].str.replace('CAMPAIGN', 'C')
+
+# Standardize transaction_date
+df2['transaction_date'] = pd.to_datetime(df2['transaction_date'], errors='coerce').dt.strftime('%Y-%m-%d')
+
+# Standardize estimated arrival
+df2.rename(columns={'estimated arrival': 'estimated_arrival_in_days'}, inplace=True)
+df2['estimated_arrival_in_days'] = df2['estimated_arrival_in_days'].apply(lambda x: re.sub(r'\D', '', str(x)))
+df2['estimated_arrival_in_days'] = pd.to_numeric(df2['estimated_arrival_in_days'], errors='coerce')
+
+# Cast to boolean availed
+df2['availed'] = df2['availed'].astype(bool)
+
 # Check for duplicate order_ids
 duplicate_order_ids = df2[df2.duplicated(subset=['order_id'], keep=False)]
 if not duplicate_order_ids.empty:
