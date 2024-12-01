@@ -1,12 +1,14 @@
 # Shopzada ETL Pipeline
 
-This repository contains ETL (Extract, Transform, Load) scripts for the Shopzada Data Warehouse project. The scripts are organized into different departments: Business, Customer Management, and Operations. Each script is responsible for extracting raw data, transforming it, and loading the cleaned data into the appropriate format.
+This repository contains ETL (Extract, Transform, Load) scripts for the Shopzada Data Warehouse project. The scripts are organized into different departments: Business, Customer Management, Operations, Enterprise, and Marketing. Each script is responsible for extracting raw data, transforming it, and loading the cleaned data into the appropriate format.
 
 ## Table of Contents
 
 - [Business Department](#business-department)
 - [Customer Management Department](#customer-management-department)
 - [Operations Department](#operations-department)
+- [Enterprise Department](#enterprise-department)
+- [Marketing Department](#marketing-department)
 - [Usage](#usage)
 - [Logging](#logging)
 
@@ -26,7 +28,7 @@ This script handles the extraction, transformation, and loading of data for the 
 - **`clean_product_list(df)`**: Cleans and standardizes the `product_list` DataFrame.
   - Drops the first column.
   - Cleans `product_id` by removing spaces, enforcing uppercase, and removing hyphens. Formats as `P#####`.
-  - Generates new unique IDs for duplicate `product_id` entries.
+  - Drops duplicates based on `product_id`, keeping the first occurrence.
   - Cleans `product_name` by removing leading/trailing spaces and converting to title case.
 
 - **`clean_product_type(df)`**: Cleans and standardizes the `product_type` column.
@@ -77,6 +79,7 @@ This script handles the extraction, transformation, and loading of data for the 
 - **`clean_user_credit_card(df)`**: Cleans and standardizes the `user_credit_card` DataFrame.
   - Cleans `user_id` by removing spaces, enforcing uppercase, and removing hyphens. Formats as `U#####`.
   - Cleans `name` by removing leading/trailing spaces, converting to title case, and handling middle initials or names with hyphens.
+  - Hashes the credit card number.
 
 - **`clean_user_data(df)`**: Cleans and standardizes the `user_data` DataFrame.
   - Cleans `user_id` by removing spaces, enforcing uppercase, and removing hyphens. Formats as `U#####`.
@@ -89,8 +92,8 @@ This script handles the extraction, transformation, and loading of data for the 
   - Cleans `user_id` by removing spaces, enforcing uppercase, and removing hyphens. Formats as `U#####`.
   - Cleans `name` by removing leading/trailing spaces, converting to title case, and handling middle initials or names with hyphens.
 
-- **`check_and_resolve_duplicates(df, subset)`**: Checks for and resolves duplicates in any DataFrame.
-  - Identifies duplicates based on the specified subset of columns.
+- **`remove_user_id_duplicates(df)`**: Checks for and resolves duplicates based on `user_id`.
+  - Identifies duplicates based on `user_id`.
   - Resolves duplicates by keeping the first occurrence.
 
 #### Usage
@@ -109,11 +112,11 @@ This script handles the extraction, transformation, and loading of data for the 
    df_user_job = clean_user_job(df_user_job)
    ```
 
-3. **Check and resolve duplicates**:
+3. **Remove duplicates based on `user_id`**:
    ```python
-   df_user_credit_card = check_and_resolve_duplicates(df_user_credit_card, subset=['user_id', 'credit_card_number'])
-   df_user_data = check_and_resolve_duplicates(df_user_data, subset=['user_id'])
-   df_user_job = check_and_resolve_duplicates(df_user_job, subset=['user_id'])
+   df_user_credit_card = remove_user_id_duplicates(df_user_credit_card)
+   df_user_data = remove_user_id_duplicates(df_user_data)
+   df_user_job = remove_user_id_duplicates(df_user_job)
    ```
 
 4. **Export cleaned data to CSV**:
@@ -173,6 +176,162 @@ This script handles the extraction, transformation, and loading of data for the 
        process_file(file_name, table_name)
    ```
 
+## Enterprise Department
+
+### Script: `ET_Enterprise.py`
+
+This script handles the extraction, transformation, and loading of data for the Enterprise Department.
+
+#### Functions
+
+- **`standardize_merchant_id(merchant_id)`**: Standardizes the `merchant_id`.
+  - Replaces `MERCHANT` with `M`.
+
+- **`standardize_staff_id(staff_id)`**: Standardizes the `staff_id`.
+  - Replaces `STAFF` with `S`.
+
+- **`check_duplicates(df, subset_columns, data_name)`**: Checks for duplicates in the DataFrame.
+  - Identifies duplicates based on the specified subset of columns.
+
+- **`check_null_values(df, data_name)`**: Checks for null values in the DataFrame.
+  - Identifies columns with null values.
+
+- **`standardize_street_name(street_name)`**: Standardizes the `street_name`.
+  - Removes extra spaces and capitalizes the first letter of each word.
+
+- **`capitalize_first_word(text)`**: Capitalizes the first word of the text.
+
+- **`standardize_phone(phone)`**: Standardizes the phone number.
+  - Removes non-numeric characters and formats the phone number.
+
+- **`simplify_country_name(country_name)`**: Simplifies the `country_name`.
+  - Removes unnecessary words and phrases.
+
+- **`standardize_country(country_name)`**: Standardizes the `country_name`.
+  - Simplifies the country name and applies custom mappings.
+
+#### Usage
+
+1. **Process the order files**:
+   ```python
+   process_order_files()
+   ```
+
+2. **Process the merchant data**:
+   ```python
+   process_merchant_data()
+   ```
+
+3. **Process the staff data**:
+   ```python
+   process_staff_data()
+   ```
+
+## Marketing Department
+
+### Script: `ET_Marketing.py`
+
+This script handles the extraction, transformation, and loading of data for the Marketing Department.
+
+#### Functions
+
+- **`standardize_percentage(value)`**: Standardizes the percentage values.
+  - Removes non-numeric characters and converts to a decimal.
+
+#### Usage
+
+1. **Process the campaign data**:
+   ```python
+   # Load the campaign data
+   csv_path = "Raw Data/campaign_data.csv"
+   df1 = pd.read_csv(csv_path, delimiter="\t")
+
+   # Remove unnecessary quotations
+   df1['campaign_description'] = df1['campaign_description'].str.replace('"', '', regex=False)
+
+   # Delete unnecessary columns
+   unnamed_columns = [col for col in df1.columns if col.lower().startswith('unnamed')]
+   if unnamed_columns:
+       df1.drop(columns=unnamed_columns, inplace=True)
+
+   # Standardize campaign_id
+   df1['campaign_id'] = df1['campaign_id'].str.replace('CAMPAIGN', 'C')
+
+   # Standardize campaign_name
+   df1['campaign_name'] = df1['campaign_name'].str.capitalize()
+   df1['campaign_name'] = df1['campaign_name'].str.replace(r'\bi\b', 'I', regex=True)
+
+   # Check for duplicate campaign_name and remove duplicates
+   duplicate_campaign_names = df1[df1.duplicated(subset=['campaign_name'], keep=False)]
+   if not duplicate_campaign_names.empty:
+       print("Duplicate campaign names found:")
+       print(duplicate_campaign_names)
+   else:
+       print("No duplicate campaign names found.")
+
+   df1 = df1.drop_duplicates(subset=['campaign_name'], keep='first')
+
+   # Check for null values in df1
+   null_campaign_data = df1.isnull().sum()
+   if null_campaign_data.any():
+       print("Null values in campaign data:")
+       print(null_campaign_data)
+   else:
+       print("No null values in campaign data.")
+
+   # Convert percentage
+   df1['discount'] = df1['discount'].apply(standardize_percentage)
+
+   # Save the cleaned DataFrame 
+   df1.to_csv("Cleaned Data/cleaned_campaign_data.csv", index=False)
+   print("Data cleaned and saved as 'cleaned_campaign_data.csv'")
+   ```
+
+2. **Process the transactional campaign data**:
+   ```python
+   # Load the transactional campaign data
+   csv_path = "Raw Data/transactional_campaign_data.csv"
+   df2 = pd.read_csv(csv_path)
+
+   # Identify and drop unnamed columns
+   unnamed_columns = [col for col in df2.columns if col.lower().startswith('unnamed')]
+   if unnamed_columns:
+       df2.drop(columns=unnamed_columns, inplace=True)
+
+   # Standardize campaign_id
+   df2['campaign_id'] = df2['campaign_id'].str.replace('CAMPAIGN', 'C')
+
+   # Standardize transaction_date
+   df2['transaction_date'] = pd.to_datetime(df2['transaction_date'], errors='coerce').dt.strftime('%Y-%m-%d')
+
+   # Standardize estimated arrival
+   df2.rename(columns={'estimated arrival': 'estimated_arrival_in_days'}, inplace=True)
+   df2['estimated_arrival_in_days'] = df2['estimated_arrival_in_days'].apply(lambda x: re.sub(r'\D', '', str(x)))
+   df2['estimated_arrival_in_days'] = pd.to_numeric(df2['estimated_arrival_in_days'], errors='coerce')
+
+   # Check for duplicate order_ids
+   duplicate_order_ids = df2[df2.duplicated(subset=['order_id'], keep=False)]
+   if not duplicate_order_ids.empty:
+       print("Duplicate order IDs found:")
+       print(duplicate_order_ids)
+   else:
+       print("No duplicate order IDs found.")
+
+   df2 = df2.drop_duplicates(subset=['order_id'], keep='first')
+
+   # Check for null values in df2
+   null_transactional_data = df2.isnull().sum()
+   if null_transactional_data.any():
+       print("Null values in transactional campaign data:")
+       print(null_transactional_data)
+   else:
+       print("No null values in transactional campaign data.")
+
+   # Save the cleaned DataFrame
+   df2.to_csv("Cleaned Data/cleaned_transactional_campaign_data.csv", index=False)
+   print("Data cleaned and saved as 'cleaned_transactional_campaign_data.csv'")
+   ```
+
 ## Logging
 
 Each script is configured to log its operations to a log file located in the same directory as the script. The log files are named as follows:
@@ -180,9 +339,11 @@ Each script is configured to log its operations to a log file located in the sam
 - **Business Department**: `business_department.log`
 - **Customer Management Department**: `customer_management_department.log`
 - **Operations Department**: `Logs_Operations.txt`
+- **Enterprise Department**: `enterprise_department.log`
+- **Marketing Department**: `marketing_department.log`
 
 The logs provide detailed information about the operations performed by each script, including data transformations, duplicate handling, and any errors encountered.
 
 ## Conclusion
 
-This repository provides a comprehensive ETL pipeline for the Shopzada project, with separate scripts for the Business, Customer Management, and Operations departments. Each script is designed to handle specific data extraction, transformation, and loading tasks, ensuring that the data is cleaned and standardized before being saved to the appropriate format.
+This repository provides a comprehensive ETL pipeline for the Shopzada project, with separate scripts for the Business, Customer Management, Operations, Enterprise, and Marketing departments. Each script is designed to handle specific data extraction, transformation, and loading tasks, ensuring that the data is cleaned and standardized before being saved to the appropriate format.
