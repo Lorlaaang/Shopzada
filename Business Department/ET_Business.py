@@ -8,8 +8,8 @@ logging.basicConfig(filename=log_path, level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # File paths
-product_list_path = r'Business Department\Raw Data\product_list.xlsx'
-cleaned_product_list_path = r'Business Department\Cleaned Data\cleaned_product_list.csv'
+product_list_path = r'Shopzada\Business Department\Raw Data\product_list.xlsx'
+cleaned_product_list_path = r'Shopzada\Business Department\Cleaned Data\cleaned_product_list.csv'
 
 # Load the dataset
 try:
