@@ -2,20 +2,24 @@ import pandas as pd
 import hashlib
 import logging
 import os
+from pathlib import Path
 
 # Configure logging
-log_path = os.path.join(os.path.dirname(__file__), 'customer_management_department.log')
+log_path = Path(__file__).parent / 'customer_management_department.log'
 logging.basicConfig(filename=log_path, level=logging.INFO, 
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
-# File paths
-user_credit_card_path = r'Customer Management Department\Raw Data\user_credit_card.pickle'
-user_data_path = r'Customer Management Department\Raw Data\user_data.json'
-user_job_path = r'Customer Management Department\Raw Data\user_job.csv'
+# Base directory
+base_dir = Path(__file__).parent.parent
 
-cleaned_user_credit_card_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_credit_card.csv'
-cleaned_user_data_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_data.csv'
-cleaned_user_job_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_job.csv'
+# File paths
+user_credit_card_path = base_dir / 'Customer Management Department' / 'Raw Data' / 'user_credit_card.pickle'
+user_data_path = base_dir / 'Customer Management Department' / 'Raw Data' / 'user_data.json'
+user_job_path = base_dir / 'Customer Management Department' / 'Raw Data' / 'user_job.csv'
+
+cleaned_user_credit_card_path = base_dir / 'Customer Management Department' / 'Cleaned Data' / 'cleaned_user_credit_card.csv'
+cleaned_user_data_path = base_dir / 'Customer Management Department' / 'Cleaned Data' / 'cleaned_user_data.csv'
+cleaned_user_job_path = base_dir / 'Customer Management Department' / 'Cleaned Data' / 'cleaned_user_job.csv'
 
 # Load the datasets
 try:
@@ -59,12 +63,6 @@ def clean_user_credit_card(df):
 
     df['name'] = df['name'].apply(clean_name)
 
-    # Hash credit card number
-    def hash_credit_card_number(credit_card_number):
-        return hashlib.sha256(str(credit_card_number).encode('utf-8')).hexdigest()
-
-    df['credit_card_number'] = df['credit_card_number'].apply(hash_credit_card_number)
-
     # Capitalize bank names
     def clean_bank_name(bank_name):
         if isinstance(bank_name, str):
@@ -72,7 +70,13 @@ def clean_user_credit_card(df):
         return bank_name
 
     df['issuing_bank'] = df['issuing_bank'].apply(clean_bank_name)
-    
+
+    # Hash credit card number
+    def hash_credit_card_number(credit_card_number):
+        return hashlib.sha256(str(credit_card_number).encode('utf-8')).hexdigest()
+
+    df['credit_card_number'] = df['credit_card_number'].apply(hash_credit_card_number)
+
     return df
 
 def clean_user_data(df):
@@ -145,7 +149,7 @@ def clean_user_job(df):
 
     df['name'] = df['name'].apply(clean_name)
 
-      # Fill null values in job_level with 'N/A'
+    # Fill null values in job_level with 'N/A'
     df['job_level'] = df['job_level'].fillna('N/A')
     
     return df

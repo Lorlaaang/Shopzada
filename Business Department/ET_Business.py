@@ -1,15 +1,19 @@
 import pandas as pd
 import logging
 import os
+from pathlib import Path
 
 # Configure logging
-log_path = os.path.join(os.path.dirname(__file__), 'business_department.log')
+log_path = Path(__file__).parent / 'business_department.log'
 logging.basicConfig(filename=log_path, level=logging.INFO, 
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
+# Base directory
+base_dir = Path(__file__).parent.parent
+
 # File paths
-product_list_path = r'Shopzada\Business Department\Raw Data\product_list.xlsx'
-cleaned_product_list_path = r'Shopzada\Business Department\Cleaned Data\cleaned_product_list.csv'
+product_list_path = base_dir / 'Business Department' / 'Raw Data' / 'product_list.xlsx'
+cleaned_product_list_path = base_dir / 'Business Department' / 'Cleaned Data' / 'cleaned_product_list.csv'
 
 # Load the dataset
 try:
