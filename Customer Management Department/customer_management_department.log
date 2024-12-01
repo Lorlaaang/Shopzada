@@ -3492,3 +3492,33 @@ User ID USER12080 has 2 duplicate entries:
 2024-12-01 21:41:36,220:INFO:Exported cleaned user_credit_card to CSV successfully.
 2024-12-01 21:41:36,235:INFO:Exported cleaned user_data to CSV successfully.
 2024-12-01 21:41:36,241:INFO:Exported cleaned user_job to CSV successfully.
+2024-12-01 23:34:15,737:ERROR:Error loading user_credit_card.pickle: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_credit_card.pickle'
+2024-12-01 23:34:15,737:ERROR:Error loading user_data.json: File Customer Management Department\Raw Data\user_data.json does not exist
+2024-12-01 23:34:15,737:ERROR:Error loading user_job.csv: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_job.csv'
+2024-12-01 23:34:15,737:ERROR:Error processing customer data: name 'df_user_credit_card' is not defined
+2024-12-01 23:34:15,737:ERROR:Error removing user_id duplicates: name 'df_user_credit_card' is not defined
+2024-12-01 23:34:15,737:ERROR:Error exporting cleaned data to CSV: name 'df_user_credit_card' is not defined
+2024-12-01 23:34:31,376:ERROR:Error loading user_credit_card.pickle: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_credit_card.pickle'
+2024-12-01 23:34:31,376:ERROR:Error loading user_data.json: File Customer Management Department\Raw Data\user_data.json does not exist
+2024-12-01 23:34:31,378:ERROR:Error loading user_job.csv: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_job.csv'
+2024-12-01 23:34:31,384:ERROR:Error processing customer data: name 'df_user_credit_card' is not defined
+2024-12-01 23:34:31,384:ERROR:Error removing user_id duplicates: name 'df_user_credit_card' is not defined
+2024-12-01 23:34:31,384:ERROR:Error exporting cleaned data to CSV: name 'df_user_credit_card' is not defined
+2024-12-01 23:37:12,425:ERROR:Error loading user_credit_card.pickle: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_credit_card.pickle'
+2024-12-01 23:37:12,431:ERROR:Error loading user_data.json: File Customer Management Department\Raw Data\user_data.json does not exist
+2024-12-01 23:37:12,431:ERROR:Error loading user_job.csv: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_job.csv'
+2024-12-01 23:37:12,431:ERROR:Error processing customer data: name 'df_user_credit_card' is not defined
+2024-12-01 23:37:12,431:ERROR:Error removing user_id duplicates: name 'df_user_credit_card' is not defined
+2024-12-01 23:37:12,431:ERROR:Error exporting cleaned data to CSV: name 'df_user_credit_card' is not defined
+2024-12-01 23:48:44,365:ERROR:Error loading user_credit_card.pickle: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_credit_card.pickle'
+2024-12-01 23:48:44,365:ERROR:Error loading user_data.json: File Customer Management Department\Raw Data\user_data.json does not exist
+2024-12-01 23:48:44,365:ERROR:Error loading user_job.csv: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_job.csv'
+2024-12-01 23:48:44,365:ERROR:Error processing customer data: name 'df_user_credit_card' is not defined
+2024-12-01 23:48:44,365:ERROR:Error removing user_id duplicates: name 'df_user_credit_card' is not defined
+2024-12-01 23:48:44,365:ERROR:Error exporting cleaned data to CSV: name 'df_user_credit_card' is not defined
+2024-12-01 23:49:11,833:ERROR:Error loading user_credit_card.pickle: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_credit_card.pickle'
+2024-12-01 23:49:11,839:ERROR:Error loading user_data.json: File Customer Management Department\Raw Data\user_data.json does not exist
+2024-12-01 23:49:11,840:ERROR:Error loading user_job.csv: [Errno 2] No such file or directory: 'Customer Management Department\\Raw Data\\user_job.csv'
+2024-12-01 23:49:11,841:ERROR:Error processing customer data: name 'df_user_credit_card' is not defined
+2024-12-01 23:49:11,841:ERROR:Error removing user_id duplicates: name 'df_user_credit_card' is not defined
+2024-12-01 23:49:11,841:ERROR:Error exporting cleaned data to CSV: name 'df_user_credit_card' is not defined
