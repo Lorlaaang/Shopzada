@@ -8,8 +8,8 @@ logging.basicConfig(filename=log_path, level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 # File paths
-product_list_path = r'Business Department\Raw Data\product_list.xlsx'
-cleaned_product_list_path = r'Business Department\Cleaned Data\cleaned_product_list.csv'
+product_list_path = r'Shopzada\Business Department\Raw Data\product_list.xlsx'
+cleaned_product_list_path = r'Shopzada\Business Department\Cleaned Data\cleaned_product_list.csv'
 
 # Load the dataset
 try:
@@ -32,20 +32,8 @@ def clean_product_list(df):
 
     df['product_id'] = df['product_id'].apply(clean_product_id)
 
-    # Get duplicate product IDs
-    duplicate_product_ids = df[df.duplicated(['product_id'], keep=False)]
-
-    # Generate new unique IDs for duplicate product_id entries
-    def generate_unique_id(existing_ids):
-        max_id = max([int(id[1:]) for id in existing_ids if id.startswith('P')])
-        new_id = f'P{max_id + 1:05d}'
-        return new_id
-
-    existing_ids = set(df['product_id'])
-    for index, row in duplicate_product_ids.iterrows():
-        new_id = generate_unique_id(existing_ids)
-        df.at[index, 'product_id'] = new_id
-        existing_ids.add(new_id)
+    # Drop duplicates based on product_id, keeping the first occurrence
+    df = df.drop_duplicates(subset=['product_id'], keep='first')
 
     # Clean product_name
     def clean_product_name(product_name):

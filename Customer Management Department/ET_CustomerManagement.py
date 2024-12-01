@@ -13,9 +13,9 @@ user_credit_card_path = r'Customer Management Department\Raw Data\user_credit_ca
 user_data_path = r'Customer Management Department\Raw Data\user_data.json'
 user_job_path = r'Customer Management Department\Raw Data\user_job.csv'
 
-cleaned_user_credit_card_path = r'Customer Management Department\Cleaned Data\cleaned_user_credit_card.csv'
-cleaned_user_data_path = r'Customer Management Department\Cleaned Data\cleaned_user_data.csv'
-cleaned_user_job_path = r'Customer Management Department\Cleaned Data\cleaned_user_job.csv'
+cleaned_user_credit_card_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_credit_card.csv'
+cleaned_user_data_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_data.csv'
+cleaned_user_job_path = r'Shopzada\Customer Management Department\Cleaned Data\cleaned_user_job.csv'
 
 # Load the datasets
 try:
@@ -122,15 +122,28 @@ def clean_user_job(df):
     
     return df
 
-# Function to check for duplicates in any DataFrame
-def check_and_resolve_duplicates(df):
-    # Identify duplicates
-    duplicates = df[df.duplicated(keep=False)]
-    logging.info(f"Duplicates: {duplicates}")
-
-    # Resolve duplicates by keeping the first occurrence
-    df = df.drop_duplicates(keep='first')
-    return df
+# Function to check for duplicates based on user_id
+def remove_user_id_duplicates(df):
+    # Identify duplicates based on user_id
+    duplicates_before = df[df.duplicated(subset=['user_id'], keep=False)]
+    logging.info(f"Number of duplicates before removal: {len(duplicates_before)}")
+    
+    # Print the details of duplicates
+    if not duplicates_before.empty:
+        logging.info("Duplicate user_id entries:")
+        for user_id in duplicates_before['user_id'].unique():
+            dup_rows = duplicates_before[duplicates_before['user_id'] == user_id]
+            logging.info(f"\nUser ID {user_id} has {len(dup_rows)} duplicate entries:")
+            logging.info(dup_rows)
+    
+    # Remove duplicates, keeping the first occurrence
+    df_cleaned = df.drop_duplicates(subset=['user_id'], keep='first')
+    
+    # Log the number of rows removed
+    rows_removed = len(df) - len(df_cleaned)
+    logging.info(f"Rows removed due to duplicate user_id: {rows_removed}")
+    
+    return df_cleaned
 
 # Apply Customer Department Functions
 try:
@@ -143,14 +156,14 @@ try:
 except Exception as e:
     logging.error(f"Error processing customer data: {e}")
 
-# Check and resolve duplicates
+# Remove duplicates based on user_id
 try:
-    df_user_credit_card = check_and_resolve_duplicates(df_user_credit_card)
-    df_user_data = check_and_resolve_duplicates(df_user_data)
-    df_user_job = check_and_resolve_duplicates(df_user_job)
-    logging.info("Checked and resolved duplicates successfully.")
+    df_user_credit_card = remove_user_id_duplicates(df_user_credit_card)
+    df_user_data = remove_user_id_duplicates(df_user_data)
+    df_user_job = remove_user_id_duplicates(df_user_job)
+    logging.info("Removed user_id duplicates successfully.")
 except Exception as e:
-    logging.error(f"Error checking and resolving duplicates: {e}")
+    logging.error(f"Error removing user_id duplicates: {e}")
 
 # Export cleaned data to CSV
 try:
