@@ -116,13 +116,13 @@ def clean_user_job(df):
     return df
 
 # Function to check for duplicates in any DataFrame
-def check_and_resolve_duplicates(df, subset):
+def check_and_resolve_duplicates(df):
     # Identify duplicates
-    duplicates = df[df.duplicated(subset=subset, keep=False)]
-    logging.info(f"Duplicates in {subset}: {duplicates}")
+    duplicates = df[df.duplicated(keep=False)]
+    logging.info(f"Duplicates: {duplicates}")
 
     # Resolve duplicates by keeping the first occurrence
-    df = df.drop_duplicates(subset=subset, keep='first')
+    df = df.drop_duplicates(keep='first')
     return df
 
 # Apply Customer Department Functions
@@ -138,9 +138,9 @@ except Exception as e:
 
 # Check and resolve duplicates
 try:
-    df_user_credit_card = check_and_resolve_duplicates(df_user_credit_card, subset=['user_id', 'credit_card_number'])
-    df_user_data = check_and_resolve_duplicates(df_user_data, subset=['user_id'])
-    df_user_job = check_and_resolve_duplicates(df_user_job, subset=['user_id'])
+    df_user_credit_card = check_and_resolve_duplicates(df_user_credit_card)
+    df_user_data = check_and_resolve_duplicates(df_user_data)
+    df_user_job = check_and_resolve_duplicates(df_user_job)
     logging.info("Checked and resolved duplicates successfully.")
 except Exception as e:
     logging.error(f"Error checking and resolving duplicates: {e}")
