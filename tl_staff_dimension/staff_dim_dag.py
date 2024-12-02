@@ -70,7 +70,7 @@ def create_table():
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS staff_dimension (
         staff_id SERIAL PRIMARY KEY,
-        product_sale_id INT,
+        product_sale_id VARCHAR(10),
         staff_name VARCHAR(255) NOT NULL,
         staff_job_level VARCHAR(255) NOT NULL,
         staff_street VARCHAR(255) NOT NULL,
@@ -78,7 +78,8 @@ def create_table():
         staff_city VARCHAR(255) NOT NULL,
         staff_country VARCHAR(255) NOT NULL,
         staff_contact_number VARCHAR(50) NOT NULL,
-        staff_creation_date DATE NOT NULL
+        staff_creation_date DATE NOT NULL,
+        FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
     );
     """
     cursor.execute(create_table_sql)

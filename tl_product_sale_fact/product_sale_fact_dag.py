@@ -77,7 +77,14 @@ def create_table():
         staff_id VARCHAR(8),
         merchant_id VARCHAR(7),
         product_id INT,
-        quantity INT NOT NULL
+        quantity INT NOT NULL,
+        FOREIGN KEY (date_id) REFERENCES date_dimension(date_id),
+        FOREIGN KEY (order_id) REFERENCES order_dimension(order_id),
+        FOREIGN KEY (user_id) REFERENCES user_dimension(user_id),
+        FOREIGN KEY (campaign_id) REFERENCES campaign_dimension(campaign_id),
+        FOREIGN KEY (staff_id) REFERENCES staff_dimension(staff_id),
+        FOREIGN KEY (merchant_id) REFERENCES merchant_dimension(merchant_id),
+        FOREIGN KEY (product_id) REFERENCES product_dimension(product_id)
     );
     """
     cursor.execute(create_table_sql)

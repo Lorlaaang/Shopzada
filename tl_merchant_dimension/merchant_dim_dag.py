@@ -70,7 +70,7 @@ def create_table():
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS merchant_dimension (
         merchant_id SERIAL PRIMARY KEY,
-        product_sale_id INT,
+        product_sale_id VARCHAR(10)
         merchant_name VARCHAR(255) NOT NULL,
         merchant_street VARCHAR(255) NOT NULL,
         merchant_state VARCHAR(255) NOT NULL,
@@ -78,6 +78,7 @@ def create_table():
         merchant_country VARCHAR(255) NOT NULL,
         merchant_contact_number VARCHAR(50) NOT NULL,
         merchant_creation_date DATE NOT NULL
+        FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
     );
     """
     cursor.execute(create_table_sql)

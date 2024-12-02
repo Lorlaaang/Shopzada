@@ -70,9 +70,12 @@ def create_table():
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS campaign_dimension (
         campaign_id VARCHAR(7) PRIMARY KEY,
+        product_sale_id VARCHAR(10),
         campaign_name VARCHAR(100) NOT NULL,
         campaign_description TEXT NOT NULL,
-        campaign_discount DECIMAL(5, 2) NOT NULL
+        campaign_discount DECIMAL(5, 2) NOT NULL,
+        FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
+
     );
     """
     cursor.execute(create_table_sql)

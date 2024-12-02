@@ -68,20 +68,21 @@ def create_table():
 
     # Create the table
     create_table_sql = """
-    CREATE TABLE IF NOT EXISTS date_dimension (
-        date_id SERIAL PRIMARY KEY,
-        product_sale_id INT,
-        date_full DATE NOT NULL,
-        date_year INT NOT NULL,
-        date_quarter INT NOT NULL,
-        date_month INT NOT NULL,
-        date_month_name VARCHAR(20) NOT NULL,
-        date_day INT NOT NULL,
-        date_day_name VARCHAR(20) NOT NULL,
-        date_is_weekend BOOLEAN NOT NULL,
-        date_is_holiday BOOLEAN NOT NULL,
-        date_holiday_name VARCHAR(50)
-    );
+  CREATE TABLE IF NOT EXISTS date_dimension (
+    date_id SERIAL PRIMARY KEY,
+    product_sale_id VARCHAR(10),
+    date_full DATE NOT NULL,
+    date_year INT NOT NULL,
+    date_quarter INT NOT NULL,
+    date_month INT NOT NULL,
+    date_month_name VARCHAR(20) NOT NULL,
+    date_day INT NOT NULL,
+    date_day_name VARCHAR(20) NOT NULL,
+    date_is_weekend BOOLEAN NOT NULL,
+    date_is_holiday BOOLEAN NOT NULL,
+    date_holiday_name VARCHAR(50),
+    FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
+);
     """
     cursor.execute(create_table_sql)
     conn.commit()

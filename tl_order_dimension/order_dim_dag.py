@@ -70,10 +70,11 @@ def create_table():
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS order_dimension (
         order_id SERIAL PRIMARY KEY,
-        product_sale_id INT,
+        product_sale_id VARCHAR(10),
         estimated_arrival DATE NOT NULL,
         delays_in_days INT NOT NULL,
-        is_discount_availed BOOLEAN NOT NULL
+        is_discount_availed BOOLEAN NOT NULL,
+        FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
     );
     """
     cursor.execute(create_table_sql)

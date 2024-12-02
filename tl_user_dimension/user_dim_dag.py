@@ -70,7 +70,7 @@ def create_table():
     create_table_sql = """
     CREATE TABLE IF NOT EXISTS user_dimension (
         user_id SERIAL PRIMARY KEY,
-        product_sale_id INT,
+        product_sale_id VARCHAR(10),
         user_name VARCHAR(255) NOT NULL,
         user_job_title VARCHAR(255),
         user_job_level VARCHAR(255),
@@ -83,7 +83,8 @@ def create_table():
         user_birthdate DATE,
         user_gender VARCHAR(50),
         user_device_address VARCHAR(255),
-        user_user_type VARCHAR(50)
+        user_user_type VARCHAR(50),
+        FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
     );
     """
     cursor.execute(create_table_sql)
