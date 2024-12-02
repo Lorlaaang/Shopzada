@@ -156,28 +156,14 @@ def clean_user_job(df):
 
 # Function to check for duplicates based on user_id
 def remove_user_id_duplicates(df):
-    # Identify duplicates based on user_id
     duplicates_before = df[df.duplicated(subset=['user_id'], keep=False)]
     logging.info(f"Number of duplicates before removal: {len(duplicates_before)}")
-    
-    # Print the details of duplicates
-    if not duplicates_before.empty:
-        logging.info("Duplicate user_id entries:")
-        for user_id in duplicates_before['user_id'].unique():
-            dup_rows = duplicates_before[duplicates_before['user_id'] == user_id]
-            logging.info(f"\nUser ID {user_id} has {len(dup_rows)} duplicate entries:")
-            logging.info(dup_rows)
-    
-    # Remove duplicates, keeping the first occurrence
     df_cleaned = df.drop_duplicates(subset=['user_id'], keep='first')
-    
-    # Log the number of rows removed
     rows_removed = len(df) - len(df_cleaned)
     logging.info(f"Rows removed due to duplicate user_id: {rows_removed}")
-    
     return df_cleaned
 
-# Apply Customer Department Functions
+# Apply Cleaning Functions
 try:
     df_user_credit_card = clean_user_credit_card(df_user_credit_card)
     logging.info("Cleaned user_credit_card successfully.")
