@@ -6,69 +6,90 @@ from sqlalchemy import create_engine
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import sys
+import traceback
 from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Database connection parameters
-db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}"
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
 database_name = 'shopzada_datawarehouse'
 
 # Define the DAG
 dag = DAG(
-    'date_data_pipeline',
-    description='DAG to load date data into PostgreSQL',
-    schedule_interval=None,  # Set to your desired schedule
+    'campaign_data_pipeline',
+    description='DAG to load campaign data into PostgreSQL',
+    schedule_interval=None,
     start_date=datetime(2024, 12, 1),
     catchup=False,
 )
 
-# Task 1: Check if Database Exists
-def check_and_create_database(database_name: str):
-    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')  # Replace with your connection ID
-    conn = pg_hook.get_conn()
-    cursor = conn.cursor()
+# Debugging function to print environment and connection details
+def print_debug_info():
+    print("Debug Information:")
+    print(f"DB_HOST: {db_host}")
+    print(f"DB_PORT: {db_port}")
+    print(f"DB_USER: {db_user}")
+    print(f"DB_PASSWORD: {'*' * len(db_password) if db_password else 'Not Set'}")
 
-    # Connect to the 'postgres' database, which is used for administrative tasks
-    cursor.execute(f"SELECT current_database();")
-    current_db = cursor.fetchone()[0]
-    
-    if current_db != 'postgres':
-        raise AirflowException("You need to be connected to the 'postgres' database to create a new database.")
-    
+    # Check current working directory and list files
+    print("\nCurrent Working Directory:", os.getcwd())
+    print("\nFiles in current directory:")
+    try:
+        print(os.listdir('.'))
+    except Exception as e:
+        print(f"Error listing directory: {e}")
+
+def check_and_create_database(database_name, **kwargs):
+    print(f"Received database_name: {database_name}")
+    print(kwargs)
+
+    pg_hook = PostgresHook(postgres_conn_id='postgres_default')
+    conn = pg_hook.get_conn()
+
+    # Enable autocommit mode to avoid running inside a transaction block
+    conn.set_session(autocommit=True)
+
     try:
         # Check if the database exists
-        cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = '{database_name}'")
-        exists = cursor.fetchone()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s;
+            """, (database_name,))
+            exists = cursor.fetchone()
 
-        if not exists:
-            print(f"Database {database_name} does not exist. Creating...")
-            cursor.execute(f"CREATE DATABASE {database_name}")
-            conn.commit()
-            print(f"Database {database_name} created successfully.")
-        else:
-            print(f"Database {database_name} already exists.")
-    
+            if exists:
+                print(f"Database {database_name} already exists. Skipping creation.")
+            else:
+                # Create the database if it doesn't exist
+                cursor.execute(f"CREATE DATABASE {database_name};")
+                print(f"Database {database_name} created successfully")
+
     except Exception as e:
-        print(f"Error while checking or creating database: {e}")
         raise AirflowException(f"Error during database creation: {e}")
     finally:
-        cursor.close()
-        conn.close()
+        # Disable autocommit if needed (to restore default behavior)
+        conn.set_session(autocommit=False)
 
-# Task 2: Create the Table
 def create_table():
-    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')  # Replace with your connection ID
-    conn = pg_hook.get_conn()
-    cursor = conn.cursor()
+    try:
+        # Validate environment variables again
+        if not all([db_host, db_port, db_user, db_password]):
+            raise AirflowException("Missing database connection environment variables")
 
-    # Switch to the database
-    cursor.execute(f"\\c {database_name}")
+        # Create connection string specifically for the new database
+        db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}"
+        engine = create_engine(db_url)
 
-    # Create the table
-    create_table_sql = """
-    CREATE TABLE IF NOT EXISTS date_dimension (
+        # Create the table using SQLAlchemy
+        with engine.connect() as connection:
+            connection.execute("""
+ CREATE TABLE IF NOT EXISTS date_dimension (
         date_id SERIAL PRIMARY KEY,
         product_sale_id VARCHAR(10),
         date_full DATE NOT NULL,
@@ -82,79 +103,29 @@ def create_table():
         date_is_holiday BOOLEAN NOT NULL,
         date_holiday_name VARCHAR(50),
         FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
-    );
-    """
-    cursor.execute(create_table_sql)
-    conn.commit()
+            )
+            """)
+        print("Table creation completed successfully")
 
-# Task 3: Process and Load CSV Data
-def process_and_load_csv():
-    # File paths for individual cleaned files
-    clean_order_data_paths = [
-        'et_operations_department/Cleaned Data/cleaned_order_data_20200101-20200701.csv',
-        'et_operations_department/Cleaned Data/cleaned_order_data_20200701-20211001.csv',
-        'et_operations_department/Cleaned Data/cleaned_order_data_20211001-20220101.csv',
-        'et_operations_department/Cleaned Data/cleaned_order_data_20220101-20221201.csv',
-        'et_operations_department/Cleaned Data/cleaned_order_data_20221201-20230601.csv',
-        'et_operations_department/Cleaned Data/cleaned_order_data_20230601-20240101.csv'
-    ]
-    clean_transaction_campaign_data_path = 'et_marketing_department/Cleaned Data/cleaned_transactional_campaign_data.csv'
-    clean_user_data_path = 'et_customer_management_department/Cleaned Data/cleaned_user_data.csv'
+    except Exception as e:
+        print("Full Error Traceback:")
+        traceback.print_exc()
+        raise AirflowException(f"Error during table creation: {e}")
 
-    # Read files
-    order_data_dfs = [pd.read_csv(path) for path in clean_order_data_paths]
-    order_data_combined = pd.concat(order_data_dfs, ignore_index=True)
-    transactional_campaign_data_df = pd.read_csv(clean_transaction_campaign_data_path)
-    user_data_df = pd.read_csv(clean_user_data_path)
-
-    # Extract date-related columns
-    date_columns = ['transaction_date', 'estimated_arrival', 'creation_date', 'birthdate']
-    order_dates = order_data_combined[['transaction_date', 'estimated_arrival']].copy()
-    campaign_dates = transactional_campaign_data_df[['transaction_date']].copy()
-    user_dates = user_data_df[['creation_date', 'birthdate']].copy()
-
-    # Rename columns for consistency
-    order_dates.rename(columns={'transaction_date': 'date_full'}, inplace=True)
-    campaign_dates.rename(columns={'transaction_date': 'date_full'}, inplace=True)
-    user_dates.rename(columns={'creation_date': 'date_full', 'birthdate': 'date_full'}, inplace=True)
-
-    # Combine all date data
-    all_dates = pd.concat([order_dates, campaign_dates, user_dates], ignore_index=True).drop_duplicates()
-
-    # Process date data
-    all_dates['date_full'] = pd.to_datetime(all_dates['date_full'], errors='coerce')
-    all_dates = all_dates.dropna(subset=['date_full'])  # Drop rows where date parsing failed
-    all_dates['date_year'] = all_dates['date_full'].dt.year
-    all_dates['date_quarter'] = all_dates['date_full'].dt.quarter
-    all_dates['date_month'] = all_dates['date_full'].dt.month
-    all_dates['date_month_name'] = all_dates['date_full'].dt.strftime('%B')
-    all_dates['date_day'] = all_dates['date_full'].dt.day
-    all_dates['date_day_name'] = all_dates['date_full'].dt.strftime('%A')
-    all_dates['date_is_weekend'] = all_dates['date_full'].dt.weekday >= 5
-    all_dates['date_is_holiday'] = all_dates['date_full'].dt.strftime('%m-%d').isin([
-        "01-01", "04-09", "05-01", "06-12", "08-21", "11-01", "11-02", "12-25", "12-30"
-    ])
-    all_dates['date_holiday_name'] = all_dates['date_full'].dt.strftime('%m-%d').map({
-        "01-01": "New Year's Day",
-        "04-09": "Araw ng Kagitingan",
-        "05-01": "Labor Day",
-        "06-12": "Independence Day",
-        "08-21": "Ninoy Aquino Day",
-        "11-01": "All Saints' Day",
-        "11-02": "All Souls' Day",
-        "12-25": "Christmas Day",
-        "12-30": "Rizal Day"
-    }).fillna('')
+# Task 3: Process and Load Date Data
+def process_and_load_date_data():
+    # Import the date algorithm from load_date_dim.py
+    from load_date_dim import date_dimension_df
 
     # Store to CSV for backup
     dir = os.path.join(os.getcwd(), "tl_date_dimension", "Merged Data")
     os.makedirs(dir, exist_ok=True)
     merged_file_path = f"{dir}/date_dim.csv"
-    all_dates.to_csv(merged_file_path, index=False)
+    date_dimension_df.to_csv(merged_file_path, index=False)
 
     # Load data into database
     engine = create_engine(db_url)
-    all_dates.to_sql('date_dimension', engine, if_exists='append', index=False)
+    date_dimension_df.to_sql('date_dimension', engine, if_exists='append', index=False)
 
 # Define Airflow tasks
 task_check_create_db = PythonOperator(
@@ -169,11 +140,11 @@ task_create_table = PythonOperator(
     dag=dag,
 )
 
-task_process_load_csv = PythonOperator(
-    task_id='process_and_load_csv',
-    python_callable=process_and_load_csv,
+task_process_load_date_data = PythonOperator(
+    task_id='process_and_load_date_data',
+    python_callable=process_and_load_date_data,
     dag=dag,
 )
 
 # Define task dependencies
-task_check_create_db >> task_create_table >> task_process_load_csv
+task_check_create_db >> task_create_table >> task_process_load_date_data

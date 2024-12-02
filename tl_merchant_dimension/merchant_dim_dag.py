@@ -6,10 +6,19 @@ from sqlalchemy import create_engine
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import sys
+import traceback
 from datetime import datetime
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Database connection parameters
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+database_name = 'shopzada_datawarehouse'
 
 # Database connection parameters
 db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}"
@@ -17,84 +26,89 @@ database_name = 'shopzada_datawarehouse'
 
 # Define the DAG
 dag = DAG(
-    'merchant_data_pipeline',
-    description='DAG to load merchant data into PostgreSQL',
+    'staff_data_pipeline',
+    description='DAG to load staff data into PostgreSQL',
     schedule_interval=None,  # Set to your desired schedule
     start_date=datetime(2024, 12, 1),
     catchup=False,
 )
 
 # Task 1: Check if Database Exists
-def check_and_create_database(database_name: str):
-    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')  # Replace with your connection ID
-    conn = pg_hook.get_conn()
-    cursor = conn.cursor()
+def check_and_create_database(database_name, **kwargs):
+    print(f"Received database_name: {database_name}")
+    print(kwargs)
 
-    # Connect to the 'postgres' database, which is used for administrative tasks
-    cursor.execute(f"SELECT current_database();")
-    current_db = cursor.fetchone()[0]
-    
-    if current_db != 'postgres':
-        raise AirflowException("You need to be connected to the 'postgres' database to create a new database.")
-    
+    pg_hook = PostgresHook(postgres_conn_id='postgres_default')
+    conn = pg_hook.get_conn()
+
+    # Enable autocommit mode to avoid running inside a transaction block
+    conn.set_session(autocommit=True)
+
     try:
         # Check if the database exists
-        cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = '{database_name}'")
-        exists = cursor.fetchone()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s;
+            """, (database_name,))
+            exists = cursor.fetchone()
 
-        if not exists:
-            print(f"Database {database_name} does not exist. Creating...")
-            cursor.execute(f"CREATE DATABASE {database_name}")
-            conn.commit()
-            print(f"Database {database_name} created successfully.")
-        else:
-            print(f"Database {database_name} already exists.")
-    
+            if exists:
+                print(f"Database {database_name} already exists. Skipping creation.")
+            else:
+                # Create the database if it doesn't exist
+                cursor.execute(f"CREATE DATABASE {database_name};")
+                print(f"Database {database_name} created successfully")
+
     except Exception as e:
-        print(f"Error while checking or creating database: {e}")
         raise AirflowException(f"Error during database creation: {e}")
     finally:
-        cursor.close()
-        conn.close()
+        # Disable autocommit if needed (to restore default behavior)
+        conn.set_session(autocommit=False)
 
-# Task 2: Create the Table
 def create_table():
-    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')  # Replace with your connection ID
-    conn = pg_hook.get_conn()
-    cursor = conn.cursor()
+    try:
+        # Validate environment variables again
+        if not all([db_host, db_port, db_user, db_password]):
+            raise AirflowException("Missing database connection environment variables")
 
-    # Switch to the database
-    cursor.execute(f"\\c {database_name}")
+        # Create connection string specifically for the new database
+        db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}"
+        engine = create_engine(db_url)
 
-    # Create the table
-    create_table_sql = """
-    CREATE TABLE IF NOT EXISTS merchant_dimension (
-        merchant_id SERIAL PRIMARY KEY,
-        product_sale_id VARCHAR(10)
-        merchant_name VARCHAR(255) NOT NULL,
-        merchant_street VARCHAR(255) NOT NULL,
-        merchant_state VARCHAR(255) NOT NULL,
-        merchant_city VARCHAR(255) NOT NULL,
-        merchant_country VARCHAR(255) NOT NULL,
-        merchant_contact_number VARCHAR(50) NOT NULL,
-        merchant_creation_date DATE NOT NULL
+        # Create the table using SQLAlchemy
+        with engine.connect() as connection:
+            connection.execute("""
+        CREATE TABLE IF NOT EXISTS campaign_dimension (
+        campaign_id VARCHAR(7) PRIMARY KEY,
+        product_sale_id VARCHAR(10),
+        campaign_name VARCHAR(100) NOT NULL,
+        campaign_description TEXT NOT NULL,
+        campaign_discount DECIMAL(5, 2) NOT NULL,
         FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
-    );
-    """
-    cursor.execute(create_table_sql)
-    conn.commit()
+            )
+            """)
+        print("Table creation completed successfully")
+
+    except Exception as e:
+        print("Full Error Traceback:")
+        traceback.print_exc()
+        raise AirflowException(f"Error during table creation: {e}")
+
 
 # Task 3: Process and Load HTML Data
 def process_and_load_html():
-    # Read the cleaned merchant data from HTML
+    # File path for cleaned merchant data
     clean_merchant_data = 'et_enterprise_department/Cleaned Data/cleaned_merchant_data.html'
+
+    # Read the cleaned merchant data from HTML
     merchant_data_df = pd.read_html(clean_merchant_data)[0]
 
     # Rename columns to match the database schema
     merchant_data_df.columns = ['merchant_' + col if (col != 'merchant_id') else col for col in merchant_data_df.columns]
 
     # Store to CSV for backup
-    dir = os.path.join(os.getcwd(), "tl_enterprise_department", "Merged Data")
+    dir = os.path.join(os.getcwd(), "tl_merchant_dimension", "Merged Data")
+    os.makedirs(dir, exist_ok=True)
     merged_file_path = f"{dir}/merchant_dim.csv"
     merchant_data_df.to_csv(merged_file_path, index=False)
 
