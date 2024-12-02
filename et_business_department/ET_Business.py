@@ -36,6 +36,14 @@ def clean_product_list(df):
 
     df['product_id'] = df['product_id'].apply(clean_product_id)
 
+    # Clean product_name
+    def clean_product_name(product_name):
+        if isinstance(product_name, str):
+            product_name = product_name.strip().title()
+        return product_name
+
+    df['product_name'] = df['product_name'].apply(clean_product_name)
+
     # Correct typos and reassign product types
     typo_corrections = {
         'toolss': 'TOOLS',
@@ -76,6 +84,9 @@ def clean_product_list(df):
     # Ensure PRODUCT_NAME and PRODUCT_TYPE are strings
     df['product_name'] = df['product_name'].astype(str)
     df['product_type'] = df['product_type'].astype(str)
+
+    # Remove vague categories like OTHERS
+    df = df[df['product_type'] != 'OTHERS']
 
     # Ensure the dataset is neat and consistently formatted
     df = df.reset_index(drop=True)
