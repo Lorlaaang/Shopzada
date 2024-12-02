@@ -20,31 +20,20 @@ db_user = os.getenv('DB_USER')
 db_password = os.getenv('DB_PASSWORD')
 database_name = 'shopzada_datawarehouse'
 
+# Database connection parameters
+db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}"
+database_name = 'shopzada_datawarehouse'
+
 # Define the DAG
 dag = DAG(
-    'campaign_data_pipeline',
-    description='DAG to load campaign data into PostgreSQL',
-    schedule_interval=None,
+    'staff_data_pipeline',
+    description='DAG to load staff data into PostgreSQL',
+    schedule_interval=None,  # Set to your desired schedule
     start_date=datetime(2024, 12, 1),
     catchup=False,
 )
 
-# Debugging function to print environment and connection details
-def print_debug_info():
-    print("Debug Information:")
-    print(f"DB_HOST: {db_host}")
-    print(f"DB_PORT: {db_port}")
-    print(f"DB_USER: {db_user}")
-    print(f"DB_PASSWORD: {'*' * len(db_password) if db_password else 'Not Set'}")
-
-    # Check current working directory and list files
-    print("\nCurrent Working Directory:", os.getcwd())
-    print("\nFiles in current directory:")
-    try:
-        print(os.listdir('.'))
-    except Exception as e:
-        print(f"Error listing directory: {e}")
-
+# Task 1: Check if Database Exists
 def check_and_create_database(database_name, **kwargs):
     print(f"Received database_name: {database_name}")
     print(kwargs)
@@ -90,11 +79,16 @@ def create_table():
         # Create the table using SQLAlchemy
         with engine.connect() as connection:
             connection.execute("""
-            CREATE TABLE IF NOT EXISTS campaign_dimension (
-                campaign_id VARCHAR(7) PRIMARY KEY,
-                campaign_name VARCHAR(100) NOT NULL,
-                campaign_description TEXT NOT NULL,
-                campaign_discount DECIMAL(5, 2) NOT NULL
+            CREATE TABLE staff_dimension (
+	            staff_id VARCHAR(9) PRIMARY KEY,
+	            staff_name VARCHAR(100) NOT NULL,
+	            staff_job_level VARCHAR(20) NOT NULL,
+	            staff_street VARCHAR(100) NOT NULL,
+	            staff_state VARCHAR(50) NOT NULL,
+	            staff_city VARCHAR(50) NOT NULL,
+	            staff_country VARCHAR(100) NOT NULL,
+	            staff_contact_number VARCHAR(15) NOT NULL,
+	            staff_creation_date TIMESTAMP NOT NULL
             )
             """)
         print("Table creation completed successfully")
@@ -104,38 +98,39 @@ def create_table():
         traceback.print_exc()
         raise AirflowException(f"Error during table creation: {e}")
 
+
 # Task 3: Process and Load CSV Data
-def process_and_load_csv():
+def process_and_load_html():
     try:
         # Validate environment variables
         if not all([db_host, db_port, db_user, db_password]):
             raise AirflowException("Missing database connection environment variables")
 
         # Corrected file path with forward slashes
-        cleaned_campaign = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_marketing_department/Cleaned Data/cleaned_campaign_data.csv"
+        clean_staff_data = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_enterprise_department/Cleaned Data/cleaned_staff_data.html"
 
-        print(f"Attempting to read CSV from: {cleaned_campaign}")
+        print(f"Attempting to read HTML from: {clean_staff_data}")
 
         # Check if the file exists before attempting to read
-        if not os.path.exists(cleaned_campaign):
-            print(f"Error: The file {cleaned_campaign} does not exist!")
-            raise AirflowException(f"File {cleaned_campaign} not found.")
+        if not os.path.exists(clean_staff_data):
+            print(f"Error: The file {clean_staff_data} does not exist!")
+            raise AirflowException(f"File {clean_staff_data} not found.")
         else:
-            print(f"File found: {cleaned_campaign}")
+            print(f"File found: {clean_staff_data}")
 
         # Read the cleaned campaign data from CSV
-        campaign_data_df = pd.read_csv(cleaned_campaign)
+        staff_data_df = pd.read_html(clean_staff_data)[0]
 
         # Rename columns
-        campaign_data_df.columns = ['campaign_' + col if (col == 'discount') else col for col in campaign_data_df.columns]
+        staff_data_df.columns = ['staff_' + col if (col != 'staff_id') else col for col in staff_data_df.columns]
 
         # Define the output file path for backup (you can modify this path as needed)
-        merged_file_path = "mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_campaign_dimension/Merged Data/campaign_dim.csv"
+        merged_file_path = "mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_staff_dimension/Merged Data/staff_dim.csv"
 
         if os.name == 'nt':  # For Windows
-            merged_file_path = "C:/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_campaign_dimension/Merged Data/merged_campaign_data.csv"
+            merged_file_path = "C:/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_staff_dimension/Merged Data/merged_staff_data.csv"
         else:  # For WSL or other Unix-like systems
-            merged_file_path = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_campaign_dimension/Merged Data/merged_campaign_data.csv"
+            merged_file_path = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_staff_dimension/Merged Data/merged_staff_data.csv"
 
         # Ensure the directory exists
         directory = os.path.dirname(merged_file_path)
@@ -145,21 +140,18 @@ def process_and_load_csv():
 
         try:
             # Assuming you have the campaign_data_df loaded, save the CSV
-            campaign_data_df.to_csv(merged_file_path, index=False)
+            staff_data_df.to_csv(merged_file_path, index=False)
             print(f"CSV file saved successfully at {merged_file_path}")
         except Exception as e:
             raise AirflowException(f"Error during CSV processing and loading: {e}")
 
-        # Store to CSV for backup
-        campaign_data_df.to_csv(merged_file_path, index=False)
-        print(f"Backup stored at: {merged_file_path}")
 
         # Create connection string specifically for the new database
         db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}"
         engine = create_engine(db_url)
 
         # Load data into database
-        campaign_data_df.to_sql('campaign_dimension', engine, if_exists='replace', index=False)
+        staff_data_df.to_sql('staff_dimension', engine, if_exists='replace', index=False)
 
         print("CSV processing and database loading completed successfully")
 
@@ -169,12 +161,6 @@ def process_and_load_csv():
         raise AirflowException(f"Error during CSV processing and loading: {e}")
 
 # Define Airflow tasks
-task_print_debug = PythonOperator(
-    task_id='print_debug_info',
-    python_callable=print_debug_info,
-    dag=dag,
-)
-
 task_check_create_db = PythonOperator(
     task_id='check_and_create_database',
     python_callable=check_and_create_database,
@@ -189,13 +175,11 @@ task_create_table = PythonOperator(
     dag=dag,
 )
 
-task_process_load_csv = PythonOperator(
-    task_id='process_and_load_csv',
-    python_callable=process_and_load_csv,
+task_process_load_html = PythonOperator(
+    task_id='process_and_load_html',
+    python_callable=process_and_load_html,
     dag=dag,
 )
 
 # Define task dependencies
-task_print_debug >> task_check_create_db >> task_create_table >> task_process_load_csv
-
-
+task_check_create_db >> task_create_table >> task_process_load_html
