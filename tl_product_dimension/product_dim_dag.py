@@ -147,7 +147,7 @@ def process_and_load_csv():
         engine = create_engine(db_url)
 
         # Load data into database
-        product_list_df.to_sql('campaign_dimension', engine, if_exists='replace', index=False)
+        product_list_df.to_sql('product_dimension', engine, if_exists='replace', index=False)
 
         print("CSV processing and database loading completed successfully")
 

@@ -6,10 +6,18 @@ from sqlalchemy import create_engine
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import sys
+import traceback
 from datetime import datetime
 
-# Load environment variables from .env file
 load_dotenv()
+
+# Database connection parameters
+db_host = os.getenv('DB_HOST')
+db_port = os.getenv('DB_PORT')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+database_name = 'shopzada_datawarehouse'
 
 # Database connection parameters
 db_url = f"postgresql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}"
@@ -25,104 +33,172 @@ dag = DAG(
 )
 
 # Task 1: Check if Database Exists
-def check_and_create_database(database_name: str):
-    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')  # Replace with your connection ID
-    conn = pg_hook.get_conn()
-    cursor = conn.cursor()
+def check_and_create_database(database_name, **kwargs):
+    print(f"Received database_name: {database_name}")
+    print(kwargs)
 
-    # Connect to the 'postgres' database, which is used for administrative tasks
-    cursor.execute(f"SELECT current_database();")
-    current_db = cursor.fetchone()[0]
-    
-    if current_db != 'postgres':
-        raise AirflowException("You need to be connected to the 'postgres' database to create a new database.")
-    
+    pg_hook = PostgresHook(postgres_conn_id='postgres_default')
+    conn = pg_hook.get_conn()
+
+    # Enable autocommit mode to avoid running inside a transaction block
+    conn.set_session(autocommit=True)
+
     try:
         # Check if the database exists
-        cursor.execute(f"SELECT 1 FROM pg_database WHERE datname = '{database_name}'")
-        exists = cursor.fetchone()
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT 1 FROM pg_catalog.pg_database WHERE datname = %s;
+            """, (database_name,))
+            exists = cursor.fetchone()
 
-        if not exists:
-            print(f"Database {database_name} does not exist. Creating...")
-            cursor.execute(f"CREATE DATABASE {database_name}")
-            conn.commit()
-            print(f"Database {database_name} created successfully.")
-        else:
-            print(f"Database {database_name} already exists.")
-    
+            if exists:
+                print(f"Database {database_name} already exists. Skipping creation.")
+            else:
+                # Create the database if it doesn't exist
+                cursor.execute(f"CREATE DATABASE {database_name};")
+                print(f"Database {database_name} created successfully")
+
     except Exception as e:
-        print(f"Error while checking or creating database: {e}")
         raise AirflowException(f"Error during database creation: {e}")
     finally:
-        cursor.close()
-        conn.close()
+        # Disable autocommit if needed (to restore default behavior)
+        conn.set_session(autocommit=False)
 
 # Task 2: Create the Table
 def create_table():
-    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')  # Replace with your connection ID
-    conn = pg_hook.get_conn()
-    cursor = conn.cursor()
+    try:
+        # Validate environment variables again
+        if not all([db_host, db_port, db_user, db_password]):
+            raise AirflowException("Missing database connection environment variables")
 
-    # Switch to the database
-    cursor.execute(f"\\c {database_name}")
+        # Create connection string specifically for the new database
+        db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}"
+        engine = create_engine(db_url)
 
-    # Create the table
-    create_table_sql = """
-    CREATE TABLE IF NOT EXISTS user_dimension (
-        user_id SERIAL PRIMARY KEY,
-        product_sale_id VARCHAR(10),
-        user_name VARCHAR(255) NOT NULL,
-        user_job_title VARCHAR(255),
-        user_job_level VARCHAR(255),
-        user_credit_card_number VARCHAR(255),
-        user_issuing_bank VARCHAR(255),
-        user_street VARCHAR(255),
-        user_state VARCHAR(255),
-        user_city VARCHAR(255),
-        user_country VARCHAR(255),
-        user_birthdate DATE,
-        user_gender VARCHAR(50),
-        user_device_address VARCHAR(255),
-        user_user_type VARCHAR(50),
-        FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
-    );
-    """
-    cursor.execute(create_table_sql)
-    conn.commit()
+        # Create the table using SQLAlchemy
+        with engine.connect() as connection:
+            connection.execute("""
+            CREATE TABLE IF NOT EXISTS users_dimension (
+	            user_id VARCHAR(10) PRIMARY KEY,
+	            user_name VARCHAR(100) NOT NULL,
+	            user_job_title VARCHAR(50) NOT NULL,
+	            user_job_level VARCHAR(50),
+	            user_credit_card_number VARCHAR(64) NOT NULL, -- hashed
+	            user_issuing_bank VARCHAR(50) NOT NULL,
+	            user_street VARCHAR(100) NOT NULL,
+	            user_state VARCHAR(50) NOT NULL,
+	            user_city VARCHAR(50) NOT NULL,
+	            user_country VARCHAR(100) NOT NULL,
+	            user_birthdate TIMESTAMP NOT NULL,
+	            user_gender VARCHAR(10) NOT NULL,
+	            user_device_address VARCHAR(17) NOT NULL,
+	            user_type VARCHAR(20) NOT NULL,
+	            user_creation_date TIMESTAMP NOT NULL
+            )
+            """)
+        print("Table creation completed successfully")
+
+    except Exception as e:
+        print("Full Error Traceback:")
+        traceback.print_exc()
+        raise AirflowException(f"Error during table creation: {e}")
 
 # Task 3: Process and Load CSV Data
 def process_and_load_csv():
-    # File paths
-    clean_user_data = 'et_customer_management_department/Cleaned Data/cleaned_user_data.csv'
-    clean_user_credit_path = 'et_customer_management_department/Cleaned Data/cleaned_user_credit_card.csv'
-    clean_user_job = 'et_customer_management_department/Cleaned Data/cleaned_user_job.csv'
+    try:
+        # Validate environment variables
+        if not all([db_host, db_port, db_user, db_password]):
+            raise AirflowException("Missing database connection environment variables")
 
-    # Read files
-    user_data_df = pd.read_csv(clean_user_data)
-    user_credit_df = pd.read_csv(clean_user_credit_path)
-    user_job_df = pd.read_csv(clean_user_job)
+        # Corrected file path with forward slashes
+        clean_user_data = '/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_customer_management_department/Cleaned Data/cleaned_user_data.csv'
+        clean_user_credit_path = '/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_customer_management_department/Cleaned Data/cleaned_user_credit_card.csv'
+        clean_user_job = '/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_customer_management_department/Cleaned Data/cleaned_user_job.csv'
+        # cleaned_product_list = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_business_department/Cleaned Data/cleaned_product_list.csv"
 
-    # Merge files for loading
-    merge_key = ['user_id', 'name']
-    user_data_with_credit_df = pd.merge(user_data_df, user_credit_df, on=merge_key, how='outer')
-    user_data_with_credit_with_job_df = pd.merge(user_data_with_credit_df, user_job_df, on=merge_key, how='outer')
+        print(f"Attempting to read CSV from: {clean_user_data}")
 
-    # Rename columns to fit db
-    user_data_with_credit_with_job_df.columns = ['user_' + col if (col != 'user_id' and col != 'user_type') else col for col in user_data_with_credit_with_job_df.columns]
+        # Check if the file exists before attempting to read
+        if not os.path.exists(clean_user_data):
+            print(f"Error: The file {clean_user_data} does not exist!")
+            raise AirflowException(f"File {clean_user_data} not found.")
+        else:
+            print(f"File found: {clean_user_data}")
 
-    # Store to CSV for backup
-    dir = os.path.join(os.getcwd(), "tl_customer_management_department", "Merged Data")
-    merged_file_path = f"{dir}/user_dim.csv"
-    user_data_with_credit_with_job_df.to_csv(merged_file_path, index=False)
+        print(f"Attempting to read CSV from: {clean_user_credit_path}")
 
-    # Load data into database
-    engine = create_engine(db_url)
-    user_data_with_credit_with_job_df.to_sql('user_dimension', engine, if_exists='append', index=False)
+        # Check if the file exists before attempting to read
+        if not os.path.exists(clean_user_credit_path):
+            print(f"Error: The file {clean_user_credit_path} does not exist!")
+            raise AirflowException(f"File {clean_user_credit_path} not found.")
+        else:
+            print(f"File found: {clean_user_credit_path}")
+        
+        # Check if the file exists before attempting to read
+        if not os.path.exists(clean_user_job):
+            print(f"Error: The file {clean_user_job} does not exist!")
+            raise AirflowException(f"File {clean_user_job} not found.")
+        else:
+            print(f"File found: {clean_user_job}")
+
+        print(f"Attempting to read CSV from: {clean_user_job}")
+
+        # Read the cleaned campaign data from CSV
+        user_data_df = pd.read_csv(clean_user_data)
+        user_credit_card_df = pd.read_csv(clean_user_credit_path)
+        user_job_df = pd.read_csv(clean_user_job)
+
+        user_data_with_credit_df = pd.merge(user_data_df, user_credit_card_df, on=['user_id', 'name'], how='outer')
+        user_data_with_credit_with_job_df = pd.merge(user_data_with_credit_df, user_job_df, on=['user_id', 'name'], how='outer')
+
+        # Rename columns
+        user_data_with_credit_with_job_df.columns = ['user_' + col if (col != 'user_id' and col != 'user_type')  else col for col in user_data_with_credit_with_job_df.columns]
+
+        # Define the output file path for backup (you can modify this path as needed)
+        merged_file_path = "mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_user_dimension/Merged Data/user_dim.csv"
+
+        if os.name == 'nt':  # For Windows
+            merged_file_path = "C:/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_user_dimension/Merged Data/user_dim.csv"
+        else:  # For WSL or other Unix-like systems
+            merged_file_path = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_user_dimension/Merged Data/user_dim.csv"
+
+        # Ensure the directory exists
+        directory = os.path.dirname(merged_file_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            print(f"Created directory: {directory}")
+
+        try:
+            # Assuming you have the campaign_data_df loaded, save the CSV
+            user_data_with_credit_with_job_df.to_csv(merged_file_path, index=False)
+            print(f"CSV file saved successfully at {merged_file_path}")
+        except Exception as e:
+            raise AirflowException(f"Error during CSV processing and loading: {e}")
+
+        # Store to CSV for backup
+        user_data_with_credit_with_job_df.to_csv(merged_file_path, index=False)
+        print(f"Backup stored at: {merged_file_path}")
+
+        # Create connection string specifically for the new database
+        db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}"
+        engine = create_engine(db_url)
+
+        # Load data into database
+        user_data_with_credit_with_job_df.to_sql('user_dimension', engine, if_exists='replace', index=False)
+
+        print("CSV processing and database loading completed successfully")
+
+    except Exception as e:
+        print("Full Error Traceback:")
+        traceback.print_exc()
+        raise AirflowException(f"Error during CSV processing and loading: {e}")
 
 # Define Airflow tasks
 task_check_create_db = PythonOperator(
     task_id='check_and_create_database',
     python_callable=check_and_create_database,
+    op_kwargs={'database_name': 'shopzada_datawarehouse'},  # Pass as a dictionary
+    provide_context=True,
     dag=dag,
 )
 
