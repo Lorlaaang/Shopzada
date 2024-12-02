@@ -36,20 +36,58 @@ def clean_product_list(df):
 
     df['product_id'] = df['product_id'].apply(clean_product_id)
 
-    # Drop duplicates based on product_id, keeping the first occurrence
-    df = df.drop_duplicates(subset=['product_id'], keep='first')
+    # Correct typos and reassign product types
+    typo_corrections = {
+        'toolss': 'TOOLS',
+        'cosmetic': 'COSMETICS'
+    }
+    product_type_reassignments = {
+        'BALLOON': 'TOYS AND ENTERTAINMENT',
+        'BOW TIE': 'ACCESSORY',
+        'JEWELRY': 'ACCESSORY',
+        'WASHING MACHINE': 'APPLIANCES'
+    }
+    merged_product_types = {
+        'TECHNOLOGY': 'ELECTRONICS AND TECHNOLOGY',
+        'STATIONARY': 'STATIONARY AND SCHOOL SUPPLIES'
+    }
 
-    # Clean product_name
-    def clean_product_name(product_name):
-        return product_name.strip().title()
+    def correct_typos(product_type):
+        return typo_corrections.get(product_type, product_type)
 
-    df['product_name'] = df['product_name'].apply(clean_product_name)
-    
+    def reassign_product_types(product_type):
+        return product_type_reassignments.get(product_type, product_type)
+
+    def merge_product_types(product_type):
+        return merged_product_types.get(product_type, product_type)
+
+    df['product_type'] = df['product_type'].apply(correct_typos).apply(reassign_product_types).apply(merge_product_types)
+
+    # Ensure all values in PRODUCT_NAME and PRODUCT_TYPE are uppercase
+    df['product_name'] = df['product_name'].str.upper()
+    df['product_type'] = df['product_type'].str.upper()
+
+    # Drop duplicates based on product_id, keeping the most recent occurrence
+    df = df.sort_values(by='product_id').drop_duplicates(subset=['product_id'], keep='last')
+
+    # Ensure PRODUCT_ID is alphanumeric
+    df['product_id'] = df['product_id'].astype(str)
+
+    # Ensure PRODUCT_NAME and PRODUCT_TYPE are strings
+    df['product_name'] = df['product_name'].astype(str)
+    df['product_type'] = df['product_type'].astype(str)
+
+    # Remove vague categories like OTHERS
+    df = df[df['product_type'] != 'OTHERS']
+
+    # Ensure the dataset is neat and consistently formatted
+    df = df.reset_index(drop=True)
+
     return df
 
 def clean_product_type(df):
-    # Fill null values in product_type with 'Unknown'
-    df['product_type'] = df['product_type'].fillna('Unknown')
+    # Fill null values in product_type with 'UNKNOWN'
+    df['product_type'] = df['product_type'].fillna('UNKNOWN')
 
     # Custom function to capitalize words except "and"
     def capitalize_except_and(product_type):
