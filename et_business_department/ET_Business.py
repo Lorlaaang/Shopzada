@@ -77,9 +77,6 @@ def clean_product_list(df):
     df['product_name'] = df['product_name'].astype(str)
     df['product_type'] = df['product_type'].astype(str)
 
-    # Remove vague categories like OTHERS
-    df = df[df['product_type'] != 'OTHERS']
-
     # Ensure the dataset is neat and consistently formatted
     df = df.reset_index(drop=True)
 
