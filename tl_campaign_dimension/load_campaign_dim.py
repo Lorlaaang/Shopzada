@@ -18,6 +18,13 @@ campaign_data_df = pd.read_csv(clean_campaign_data)
 
 campaign_data_df.columns = ['campaign_' + col if (col == 'discount') else col for col in campaign_data_df.columns]
 
+# store to csv for backup
+dir = os.path.join(os.getcwd(), "tl_campaign_dimension", "Merged Data")
+merged_file_path = f"{dir}/campaign_dim.csv"
+campaign_data_df.to_csv(merged_file_path, index=False)
+
+
 # load data into database
 engine = create_engine(db_url)
+campaign_dim_df = pd.read_csv(merged_file_path)
 campaign_data_df.to_sql(table_name, engine, if_exists='append', index=False)
