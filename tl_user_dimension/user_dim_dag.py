@@ -10,7 +10,6 @@ import sys
 import traceback
 from datetime import datetime
 
-# Load environment variables from .env file
 load_dotenv()
 
 # Database connection parameters
@@ -79,23 +78,22 @@ def create_table():
         # Create the table using SQLAlchemy
         with engine.connect() as connection:
             connection.execute("""
-            CREATE TABLE IF NOT EXISTS user_dimension (
-            user_id SERIAL PRIMARY KEY,
-            product_sale_id VARCHAR(10),
-            user_name VARCHAR(255) NOT NULL,
-            user_job_title VARCHAR(255),
-            user_job_level VARCHAR(255),
-            user_credit_card_number VARCHAR(255),
-            user_issuing_bank VARCHAR(255),
-            user_street VARCHAR(255),
-            user_state VARCHAR(255),
-            user_city VARCHAR(255),
-            user_country VARCHAR(255),
-            user_birthdate DATE,
-            user_gender VARCHAR(50),
-            user_device_address VARCHAR(255),
-            user_user_type VARCHAR(50),
-            FOREIGN KEY (product_sale_id) REFERENCES product_sale_fact(product_sale_id)
+            CREATE TABLE IF NOT EXISTS users_dimension (
+	            user_id VARCHAR(10) PRIMARY KEY,
+	            user_name VARCHAR(100) NOT NULL,
+	            user_job_title VARCHAR(50) NOT NULL,
+	            user_job_level VARCHAR(50),
+	            user_credit_card_number VARCHAR(64) NOT NULL, -- hashed
+	            user_issuing_bank VARCHAR(50) NOT NULL,
+	            user_street VARCHAR(100) NOT NULL,
+	            user_state VARCHAR(50) NOT NULL,
+	            user_city VARCHAR(50) NOT NULL,
+	            user_country VARCHAR(100) NOT NULL,
+	            user_birthdate TIMESTAMP NOT NULL,
+	            user_gender VARCHAR(10) NOT NULL,
+	            user_device_address VARCHAR(17) NOT NULL,
+	            user_type VARCHAR(20) NOT NULL,
+	            user_creation_date TIMESTAMP NOT NULL
             )
             """)
         print("Table creation completed successfully")
@@ -107,23 +105,100 @@ def create_table():
 
 # Task 3: Process and Load CSV Data
 def process_and_load_csv():
-    # Import the data processing logic from load_user_dim.py
-    from load_user_dim import user_data_with_credit_with_job_df
+    try:
+        # Validate environment variables
+        if not all([db_host, db_port, db_user, db_password]):
+            raise AirflowException("Missing database connection environment variables")
 
-    # Store to CSV for backup
-    dir = os.path.join(os.getcwd(), "tl_user_dimension", "Merged Data")
-    os.makedirs(dir, exist_ok=True)
-    merged_file_path = f"{dir}/user_dim.csv"
-    user_data_with_credit_with_job_df.to_csv(merged_file_path, index=False)
+        # Corrected file path with forward slashes
+        clean_user_data = '/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_customer_management_department/Cleaned Data/cleaned_user_data.csv'
+        clean_user_credit_path = '/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_customer_management_department/Cleaned Data/cleaned_user_credit_card.csv'
+        clean_user_job = '/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_customer_management_department/Cleaned Data/cleaned_user_job.csv'
+        # cleaned_product_list = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/et_business_department/Cleaned Data/cleaned_product_list.csv"
 
-    # Load data into database
-    engine = create_engine(db_url)
-    user_data_with_credit_with_job_df.to_sql('user_dimension', engine, if_exists='append', index=False)
+        print(f"Attempting to read CSV from: {clean_user_data}")
+
+        # Check if the file exists before attempting to read
+        if not os.path.exists(clean_user_data):
+            print(f"Error: The file {clean_user_data} does not exist!")
+            raise AirflowException(f"File {clean_user_data} not found.")
+        else:
+            print(f"File found: {clean_user_data}")
+
+        print(f"Attempting to read CSV from: {clean_user_credit_path}")
+
+        # Check if the file exists before attempting to read
+        if not os.path.exists(clean_user_credit_path):
+            print(f"Error: The file {clean_user_credit_path} does not exist!")
+            raise AirflowException(f"File {clean_user_credit_path} not found.")
+        else:
+            print(f"File found: {clean_user_credit_path}")
+        
+        # Check if the file exists before attempting to read
+        if not os.path.exists(clean_user_job):
+            print(f"Error: The file {clean_user_job} does not exist!")
+            raise AirflowException(f"File {clean_user_job} not found.")
+        else:
+            print(f"File found: {clean_user_job}")
+
+        print(f"Attempting to read CSV from: {clean_user_job}")
+
+        # Read the cleaned campaign data from CSV
+        user_data_df = pd.read_csv(clean_user_data)
+        user_credit_card_df = pd.read_csv(clean_user_credit_path)
+        user_job_df = pd.read_csv(clean_user_job)
+
+        user_data_with_credit_df = pd.merge(user_data_df, user_credit_card_df, on=['user_id', 'name'], how='outer')
+        user_data_with_credit_with_job_df = pd.merge(user_data_with_credit_df, user_job_df, on=['user_id', 'name'], how='outer')
+
+        # Rename columns
+        user_data_with_credit_with_job_df.columns = ['user_' + col if (col != 'user_id' and col != 'user_type')  else col for col in user_data_with_credit_with_job_df.columns]
+
+        # Define the output file path for backup (you can modify this path as needed)
+        merged_file_path = "mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_user_dimension/Merged Data/user_dim.csv"
+
+        if os.name == 'nt':  # For Windows
+            merged_file_path = "C:/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_user_dimension/Merged Data/user_dim.csv"
+        else:  # For WSL or other Unix-like systems
+            merged_file_path = "/mnt/c/Users/giogen/Documents/ust 3csf/1st sem/WAREHOUSING/shopzada/tl_user_dimension/Merged Data/user_dim.csv"
+
+        # Ensure the directory exists
+        directory = os.path.dirname(merged_file_path)
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+            print(f"Created directory: {directory}")
+
+        try:
+            # Assuming you have the campaign_data_df loaded, save the CSV
+            user_data_with_credit_with_job_df.to_csv(merged_file_path, index=False)
+            print(f"CSV file saved successfully at {merged_file_path}")
+        except Exception as e:
+            raise AirflowException(f"Error during CSV processing and loading: {e}")
+
+        # Store to CSV for backup
+        user_data_with_credit_with_job_df.to_csv(merged_file_path, index=False)
+        print(f"Backup stored at: {merged_file_path}")
+
+        # Create connection string specifically for the new database
+        db_url = f"postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{database_name}"
+        engine = create_engine(db_url)
+
+        # Load data into database
+        user_data_with_credit_with_job_df.to_sql('user_dimension', engine, if_exists='replace', index=False)
+
+        print("CSV processing and database loading completed successfully")
+
+    except Exception as e:
+        print("Full Error Traceback:")
+        traceback.print_exc()
+        raise AirflowException(f"Error during CSV processing and loading: {e}")
 
 # Define Airflow tasks
 task_check_create_db = PythonOperator(
     task_id='check_and_create_database',
     python_callable=check_and_create_database,
+    op_kwargs={'database_name': 'shopzada_datawarehouse'},  # Pass as a dictionary
+    provide_context=True,
     dag=dag,
 )
 
