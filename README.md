@@ -9,8 +9,14 @@ This repository contains ETL (Extract, Transform, Load) scripts for the Shopzada
 - [Operations Department](#operations-department)
 - [Enterprise Department](#enterprise-department)
 - [Marketing Department](#marketing-department)
-- [Usage](#usage)
 - [Logging](#logging)
+- [Date Dimension](#date-dimension)
+- [Time Dimension](#time-dimension)
+- [Product Dimension](#product-dimension)
+- [Customer Dimension](#customer-dimension)
+- [Sales Fact Table](#sales-fact-table)
+- [Loading and DAG Files](#loading-and-dag-files)
+- [Conclusion](#conclusion)
 
 ## Business Department
 
@@ -344,6 +350,184 @@ Each script is configured to log its operations to a log file located in the sam
 
 The logs provide detailed information about the operations performed by each script, including data transformations, duplicate handling, and any errors encountered.
 
+
+## Date Dimension
+
+### Script: `tl_date_dimension.py`
+
+This script handles the creation and loading of the date dimension table for the data warehouse.
+
+#### Functions
+
+- `generate_date_dimension(start_date, end_date)`: Generates a date dimension DataFrame.
+  - Creates a DataFrame with a row for each date between `start_date` and `end_date`.
+  - Adds columns for year, quarter, month, day, weekday, and other date-related attributes.
+
+#### Usage
+
+1. **Generate the date dimension**:
+   start_date = '2020-01-01'
+   end_date = '2030-12-31'
+   df_date_dimension = generate_date_dimension(start_date, end_date)
+
+2. **Save the date dimension to CSV**:
+   df_date_dimension.to_csv('Cleaned Data/date_dimension.csv', index=False)
+
+## Time Dimension
+
+### Script: `tl_time_dimension.py`
+
+This script handles the creation and loading of the time dimension table for the data warehouse.
+
+#### Functions
+
+- `generate_time_dimension(start_time, end_time, freq)`: Generates a time dimension DataFrame.
+  - Creates a DataFrame with a row for each time interval between `start_time` and `end_time` based on the specified frequency (`freq`).
+  - Adds columns for hour, minute, second, and other time-related attributes.
+
+#### Usage
+
+1. **Generate the time dimension**:
+   start_time = '00:00:00'
+   end_time = '23:59:59'
+   freq = '1T'  # 1-minute frequency
+   df_time_dimension = generate_time_dimension(start_time, end_time, freq)
+
+2. **Save the time dimension to CSV**:
+   df_time_dimension.to_csv('Cleaned Data/time_dimension.csv', index=False)
+
+## Product Dimension
+
+### Script: `tl_product_dimension.py`
+
+This script handles the creation and loading of the product dimension table for the data warehouse.
+
+#### Functions
+
+- `generate_product_dimension(product_data)`: Generates a product dimension DataFrame.
+  - Takes raw product data and transforms it into a standardized product dimension table.
+  - Adds columns for product ID, product name, category, and other product-related attributes.
+
+#### Usage
+
+1. **Load the raw product data**:
+   product_data = pd.read_csv('Raw Data/product_data.csv')
+
+2. **Generate the product dimension**:
+   df_product_dimension = generate_product_dimension(product_data)
+
+3. **Save the product dimension to CSV**:
+   df_product_dimension.to_csv('Cleaned Data/product_dimension.csv', index=False)
+
+## Customer Dimension
+
+### Script: `tl_customer_dimension.py`
+
+This script handles the creation and loading of the customer dimension table for the data warehouse.
+
+#### Functions
+
+- `generate_customer_dimension(customer_data)`: Generates a customer dimension DataFrame.
+  - Takes raw customer data and transforms it into a standardized customer dimension table.
+  - Adds columns for customer ID, name, address, and other customer-related attributes.
+
+#### Usage
+
+1. **Load the raw customer data**:
+   customer_data = pd.read_csv('Raw Data/customer_data.csv')
+
+2. **Generate the customer dimension**:
+   df_customer_dimension = generate_customer_dimension(customer_data)
+
+3. **Save the customer dimension to CSV**:
+   df_customer_dimension.to_csv('Cleaned Data/customer_dimension.csv', index=False)
+
+## Sales Fact Table
+
+### Script: `tl_sales_fact.py`
+
+This script handles the creation and loading of the sales fact table for the data warehouse.
+
+#### Functions
+
+- `generate_sales_fact(sales_data)`: Generates a sales fact DataFrame.
+  - Takes raw sales data and transforms it into a standardized sales fact table.
+  - Adds columns for sales ID, date, time, product ID, customer ID, quantity, and other sales-related attributes.
+
+#### Usage
+
+1. **Load the raw sales data**:
+   sales_data = pd.read_csv('Raw Data/sales_data.csv')
+
+2. **Generate the sales fact table**:
+   df_sales_fact = generate_sales_fact(sales_data)
+
+3. **Save the sales fact table to CSV**:
+   df_sales_fact.to_csv('Cleaned Data/sales_fact.csv', index=False)
+
+
+## Loading and DAG Files
+
+### General Summary
+
+The loading and DAG (Directed Acyclic Graph) files in this repository work together to orchestrate the ETL process, ensuring that data is extracted, transformed, and loaded in a systematic and efficient manner. These files are responsible for scheduling, managing dependencies, and executing the ETL tasks in the correct order.
+
+### Loading Scripts
+
+The loading scripts are responsible for loading the cleaned and transformed data into the data warehouse. These scripts typically read the cleaned data from CSV files and insert it into the appropriate tables in the data warehouse.
+
+#### Example Loading Script: `load_data.py`
+
+This script handles the loading of various dimension and fact tables into the data warehouse.
+
+#### Functions
+
+- `load_date_dimension()`: Loads the date dimension data into the data warehouse.
+- `load_time_dimension()`: Loads the time dimension data into the data warehouse.
+- `load_product_dimension()`: Loads the product dimension data into the data warehouse.
+- `load_customer_dimension()`: Loads the customer dimension data into the data warehouse.
+- `load_sales_fact()`: Loads the sales fact data into the data warehouse.
+
+#### Usage
+
+1. **Load the date dimension data**:
+   load_date_dimension()
+
+2. **Load the time dimension data**:
+   load_time_dimension()
+
+3. **Load the product dimension data**:
+   load_product_dimension()
+
+4. **Load the customer dimension data**:
+   load_customer_dimension()
+
+5. **Load the sales fact data**:
+   load_sales_fact()
+
+### DAG Files
+
+The DAG files define the workflow for the ETL process, specifying the order in which tasks should be executed and managing dependencies between tasks. These files are typically used with workflow management tools like Apache Airflow.
+
+#### Example DAG File: `etl_dag.py`
+
+This file defines the ETL workflow for the Shopzada project.
+
+#### Components
+
+- **Tasks**: Each task represents a step in the ETL process, such as extracting raw data, transforming it, or loading it into the data warehouse.
+- **Dependencies**: The DAG file specifies the dependencies between tasks, ensuring that tasks are executed in the correct order.
+
+#### Usage
+
+1. **Define the tasks**:
+   extract_task = PythonOperator(task_id='extract', python_callable=extract_data)
+   transform_task = PythonOperator(task_id='transform', python_callable=transform_data)
+   load_task = PythonOperator(task_id='load', python_callable=load_data)
+
+2. **Set task dependencies**:
+   extract_task >> transform_task >> load_task
+
 ## Conclusion
 
-This repository provides a comprehensive ETL pipeline for the Shopzada project, with separate scripts for the Business, Customer Management, Operations, Enterprise, and Marketing departments. Each script is designed to handle specific data extraction, transformation, and loading tasks, ensuring that the data is cleaned and standardized before being saved to the appropriate format.
+This repository provides a comprehensive ETL pipeline for the Shopzada project, with separate scripts for the Business, Customer Management, Operations, Enterprise, and Marketing departments. Each script is designed to handle specific data extraction, transformation, and loading tasks, ensuring that the data is cleaned and standardized before being saved to the appropriate format. The loading and DAG files work together to automate and manage the ETL process for the Shopzada project. The loading scripts handle the insertion of cleaned data into the data warehouse, while the DAG files define the workflow and manage task dependencies, ensuring that the ETL process is executed efficiently and correctly.
